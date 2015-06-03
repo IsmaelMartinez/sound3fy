@@ -19,8 +19,9 @@
 </head>
 
 <body>
-	
+
 <script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="webaudio.js"></script>
 
 <script>
 
@@ -49,7 +50,7 @@ var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
-    .attr("transform", 
+    .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
 
 d3.csv("bar-data.csv", function(error, data) {
@@ -58,7 +59,7 @@ d3.csv("bar-data.csv", function(error, data) {
         d.date = parseDate(d.date);
         d.value = +d.value;
     });
-	
+
   x.domain(data.map(function(d) { return d.date; }));
   y.domain([0, d3.max(data, function(d) { return d.value; })]);
 
@@ -89,6 +90,7 @@ d3.csv("bar-data.csv", function(error, data) {
       .attr("x", function(d) { return x(d.date); })
       .attr("width", x.rangeBand())
       .attr("y", function(d) { return y(d.value); })
+			.on('click', setFrequency)
       .attr("height", function(d) { return height - y(d.value); });
 
 });
