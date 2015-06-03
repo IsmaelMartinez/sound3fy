@@ -10,3 +10,6 @@ oscillator.start();
 function setFrequency(d) {
   oscillator.frequency.value = d.value;
 }
+function resetFrequency() {
+  oscillator.frequency.value = 0;
+}

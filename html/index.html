@@ -90,7 +90,8 @@ d3.csv("bar-data.csv", function(error, data) {
       .attr("x", function(d) { return x(d.date); })
       .attr("width", x.rangeBand())
       .attr("y", function(d) { return y(d.value); })
-			.on('click', setFrequency)
+			.on('mouseover', setFrequency)
+			.on('mouseout', resetFrequency)
       .attr("height", function(d) { return height - y(d.value); });
 
 });
