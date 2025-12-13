@@ -4,103 +4,285 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-**sound3fy** is a D3.js plugin that adds auditory representations to data visualizations, making charts accessible to blind and low-vision users through sonification.
+**sound3fy** adds sonification to D3.js visualizations, making charts accessible to blind and low-vision users. Data values become musical notes—higher values play higher pitches, creating an auditory representation of your data.
 
-## The Problem
+## Features
 
-Data visualizations are fundamentally inaccessible to the 2.2 billion people worldwide with vision impairment. Screen readers can only read alt-text descriptions—they can't convey trends, patterns, or relationships that visualizations are designed to show.
-
-## The Solution
-
-sound3fy maps data to sound, enabling users to:
-- **Hear trends** (rising pitch = rising values)
-- **Perceive patterns** through rhythm and melody
-- **Navigate data** with keyboard controls
-- **Get context** through screen reader announcements
+- 🎵 **Musical Scales** - Pentatonic, major, minor, blues, chromatic
+- ⌨️ **Full Keyboard Navigation** - Arrow keys, Home/End, speed controls
+- 🔈 **Screen Reader Support** - ARIA live regions announce values
+- 🎯 **Hover to Hear** - Mouse over any data point to hear its value
+- 🎛️ **Customizable** - Control pitch range, duration, speed, and more
+- 📦 **Zero Dependencies** - Just D3.js and Web Audio API
 
 ## Quick Start
 
 ```javascript
-import * as d3 from 'd3';
-import 'sound3fy';
-
 // Add sonification with one line
 d3.selectAll("rect")
-  .data([10, 25, 15, 30, 20])
-  .sonify();
+  .data(data)
+  .sonify({ pitch: "value" });
 ```
 
-## Features
+## Installation
 
-- 🎵 **Simple API** - Add `.sonify()` to any D3 selection
-- ⌨️ **Keyboard Navigation** - Arrow keys to step through data
-- 🔈 **Screen Reader Support** - ARIA live region announcements
-- 🎹 **Customizable Mapping** - Control pitch, volume, pan, duration
-- 🎼 **Musical Scales** - Pentatonic, major, minor, chromatic
-- 📊 **Chart-Aware** - Optimized handling for bars, lines, scatter plots
+```bash
+npm install sound3fy
+```
 
-## Documentation
+Or include via CDN:
+```html
+<script src="https://unpkg.com/sound3fy"></script>
+```
 
-- [Research Document](./RESEARCH.md) - Deep dive into the project research, architecture, and development plan
-- [API Reference](./docs/API.md) - Complete API documentation (coming soon)
-- [Examples](./examples/) - Working examples (coming soon)
+## Usage
 
-## Development Roadmap
+### Basic Usage
 
-| Phase | Focus | Status |
-|-------|-------|--------|
-| 0 | Project Setup | 🔄 In Progress |
-| 1 | Core Audio Engine | ⏳ Planned |
-| 2 | D3 Integration | ⏳ Planned |
-| 3 | Accessibility Layer | ⏳ Planned |
-| 4 | Advanced Mappings | ⏳ Planned |
-| 5 | Chart Handlers | ⏳ Planned |
-| 6 | User Testing | ⏳ Planned |
-| 7 | Documentation & Release | ⏳ Planned |
+```javascript
+// Sonify a bar chart
+const sonification = d3.selectAll(".bar")
+  .data(data)
+  .sonify({ pitch: "value" });
 
-## Why This Project?
+// Control playback
+sonification.play();
+sonification.pause();
+sonification.stop();
+```
 
-### The Gap
+### With Options
 
-| Tool | D3 Native | Easy API | Open Source |
-|------|-----------|----------|-------------|
-| Highcharts Sonification | ❌ | ✅ | ❌ |
-| Chart2Music | ❌ | ✅ | ✅ |
-| MAIDR | ❌ | ⚠️ | ✅ |
-| **sound3fy** | ✅ | ✅ | ✅ |
+```javascript
+d3.selectAll(".bar")
+  .data(data)
+  .sonify({
+    pitch: {
+      field: "value",           // Data field to map
+      range: [220, 880],        // Frequency range (Hz)
+      scale: "pentatonic"       // Musical scale
+    },
+    duration: 200,              // Note duration (ms)
+    gap: 50,                    // Gap between notes (ms)
+    markers: {
+      start: true,              // Play sound at start
+      end: true                 // Play sound at end
+    }
+  });
+```
 
-D3.js powers millions of web visualizations, but has no dedicated sonification solution. sound3fy fills this gap.
+### Available Scales
 
-### Research-Backed
+| Scale | Description |
+|-------|-------------|
+| `pentatonic` | Pleasant, no dissonance (default) |
+| `major` | Bright, happy |
+| `minor` | Serious, somber |
+| `blues` | Bluesy feel |
+| `chromatic` | All 12 notes |
+| `continuous` | Direct frequency mapping |
 
-This project is built on extensive research into:
-- Human auditory perception and psychoacoustics
-- Existing sonification tools and academic research
-- WCAG accessibility guidelines
-- User-centered design principles
+### Playback Controls
 
-See our [Research Document](./RESEARCH.md) for the complete analysis.
+```javascript
+const s = d3.selectAll(".bar").sonify({ pitch: "value" });
+
+s.play();           // Start playback
+s.pause();          // Pause
+s.stop();           // Stop and reset
+s.toggle();         // Toggle play/pause
+s.next();           // Next data point
+s.previous();       // Previous data point
+s.first();          // Jump to first
+s.last();           // Jump to last
+s.setSpeed(1.5);    // 1.5x speed
+s.destroy();        // Clean up
+```
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Space` | Play/Pause |
+| `←` `→` | Navigate between points |
+| `Home` | Jump to first |
+| `End` | Jump to last |
+| `+` `-` | Increase/decrease speed |
+| `Escape` | Stop |
+
+## Accessibility
+
+sound3fy is built with accessibility as a core feature:
+
+- **Screen Readers**: Uses ARIA live regions to announce data values
+- **Keyboard Navigation**: Full keyboard support, no mouse required
+- **Focus Indicators**: Visual focus ring shows current data point
+- **Trend Announcements**: Describes if values are increasing/decreasing
+
+## API Reference
+
+### Options
+
+```javascript
+{
+  // Pitch mapping
+  pitch: {
+    field: "value",         // Data field or accessor function
+    range: [220, 880],      // Frequency range [min, max] Hz
+    scale: "pentatonic"     // Musical scale
+  },
+  
+  // Volume mapping (optional)
+  volume: {
+    field: "importance",    // Data field
+    range: [0.4, 0.7]       // Volume range [min, max]
+  },
+  
+  // Stereo panning
+  pan: {
+    range: [-0.7, 0.7]      // Left to right spread
+  },
+  
+  // Timing
+  duration: 200,            // Note duration (ms)
+  gap: 50,                  // Gap between notes (ms)
+  
+  // Sound envelope (ADSR)
+  envelope: {
+    attack: 0.02,
+    decay: 0.05,
+    sustain: 0.7,
+    release: 0.1
+  },
+  
+  // Orientation markers
+  markers: {
+    start: true,            // Play sound at start
+    end: true               // Play sound at end
+  },
+  
+  // Accessibility
+  accessibility: {
+    keyboard: true,         // Enable keyboard navigation
+    announce: true,         // Screen reader announcements
+    focus: true,            // Visual focus indicator
+    hover: true             // Sonify on hover
+  },
+  
+  autoPlay: false           // Start playing immediately
+}
+```
+
+### Methods
+
+| Method | Description |
+|--------|-------------|
+| `play()` | Start playback |
+| `pause()` | Pause playback |
+| `stop()` | Stop and reset |
+| `toggle()` | Toggle play/pause |
+| `next()` | Go to next point |
+| `previous()` | Go to previous point |
+| `first()` | Jump to first point |
+| `last()` | Jump to last point |
+| `seek(index)` | Jump to specific index |
+| `setSpeed(multiplier)` | Set playback speed (0.25-4) |
+| `destroy()` | Clean up resources |
+
+### State
+
+| Method | Returns |
+|--------|---------|
+| `isPlaying()` | `boolean` |
+| `isPaused()` | `boolean` |
+| `currentIndex()` | `number` |
+| `length()` | `number` |
+
+## Examples
+
+### Line Chart
+
+```javascript
+d3.selectAll(".dot")
+  .data(data)
+  .sonify({
+    pitch: d => d.y,
+    duration: 150,
+    gap: 30
+  });
+```
+
+### Multi-Series
+
+```javascript
+d3.selectAll(".bar")
+  .data(data)
+  .sonify({
+    pitch: "value",
+    timbre: {
+      field: "category",
+      mapping: {
+        "sales": "sine",
+        "expenses": "triangle"
+      }
+    }
+  });
+```
+
+## Browser Support
+
+- Chrome 66+
+- Firefox 76+
+- Safari 14+
+- Edge 79+
+
+Requires Web Audio API support.
+
+## Development
+
+```bash
+# Clone
+git clone https://github.com/IsmaelMartinez/sound3fy.git
+cd sound3fy
+
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+
+# Build
+npm run build
+```
+
+## Research & Background
+
+This project is based on research into data sonification and accessibility. See [RESEARCH.md](./RESEARCH.md) for:
+
+- Market analysis of existing solutions
+- Technical research on human hearing perception
+- Accessibility standards compliance (WCAG)
+- Development roadmap
 
 ## Contributing
 
-We welcome contributions! Areas where we especially need help:
+We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
-- 👁️ **User Testing** - Are you blind or low-vision? We'd love your feedback
-- 🔊 **Sound Design** - Help us create pleasant, informative audio mappings
-- 📝 **Documentation** - Help make the docs more accessible
-- 🧪 **Testing** - Help us test across browsers and screen readers
+**Especially needed:**
+- 👁️ User testing from blind/low-vision users
+- 🔊 Sound design improvements
+- 📝 Documentation
 
 ## License
 
-MIT License - see [LICENSE](./LICENSE) for details.
+MIT License - see [LICENSE](./LICENSE)
 
 ## Acknowledgments
 
-This project builds on research and ideas from:
-- [MAIDR](https://arxiv.org/abs/2403.00717) - Multimodal accessible data representation
-- [Erie](https://arxiv.org/abs/2402.00156) - Declarative grammar for sonification
-- [Chart2Music](https://chart2music.com) - JavaScript chart sonification
-- [Accessible Oceans](https://accessibleoceans.whoi.edu) - Ocean data sonification
+Built on research from:
+- [MAIDR](https://arxiv.org/abs/2403.00717) - Multimodal accessible data
+- [Erie](https://arxiv.org/abs/2402.00156) - Declarative sonification grammar
+- [Chart2Music](https://chart2music.com) - Chart sonification library
 
 ---
 
