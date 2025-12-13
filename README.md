@@ -9,6 +9,7 @@
 ## Features
 
 - 🎵 **Musical Scales** - Pentatonic, major, minor, blues, chromatic
+- 📈 **Line Chart Support** - Continuous frequency sweep for trends
 - ⌨️ **Full Keyboard Navigation** - Arrow keys, Home/End, speed controls
 - 🔈 **Screen Reader Support** - ARIA live regions announce values
 - 🎯 **Hover to Hear** - Mouse over any data point to hear its value
@@ -96,6 +97,7 @@ s.previous();       // Previous data point
 s.first();          // Jump to first
 s.last();           // Jump to last
 s.setSpeed(1.5);    // 1.5x speed
+s.setMode('continuous'); // Switch to continuous mode
 s.destroy();        // Clean up
 ```
 
@@ -108,6 +110,7 @@ s.destroy();        // Clean up
 | `Home` | Jump to first |
 | `End` | Jump to last |
 | `+` `-` | Increase/decrease speed |
+| `M` | Toggle continuous/discrete mode |
 | `Escape` | Stop |
 
 ## Accessibility
@@ -200,14 +203,25 @@ sound3fy is built with accessibility as a core feature:
 
 ## Examples
 
-### Line Chart
+### Line Chart (Continuous Mode)
 
 ```javascript
+// Continuous sweep - hear the entire trend
 d3.selectAll(".dot")
   .data(data)
   .sonify({
-    pitch: d => d.y,
-    duration: 150,
+    pitch: "value",
+    mode: "continuous",  // Smooth frequency sweep
+    duration: 150
+  });
+
+// Discrete mode - step through points
+d3.selectAll(".dot")
+  .data(data)
+  .sonify({
+    pitch: "value",
+    mode: "discrete",
+    duration: 200,
     gap: 30
   });
 ```

@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sound3fy - Line Chart Example</title>
+  
+  <style>
+    :root {
+      --bg: #0a0a12;
+      --bg-card: #12121f;
+      --accent: #10b981;
+      --accent-light: #34d399;
+      --accent-glow: rgba(16, 185, 129, 0.3);
+      --purple: #8b5cf6;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: #1e1e32;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    header {
+      text-align: center;
+      padding: 2rem 0;
+    }
+    
+    .logo {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, var(--accent-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .tagline { color: var(--text-muted); margin-top: 0.5rem; }
+    
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    /* Chart */
+    #chart { width: 100%; height: 350px; }
+    
+    .line {
+      fill: none;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    
+    .line-revenue { stroke: var(--accent); }
+    .line-expenses { stroke: var(--purple); }
+    
+    .dot {
+      cursor: pointer;
+      transition: r 0.15s ease;
+    }
+    
+    .dot-revenue { fill: var(--accent); }
+    .dot-expenses { fill: var(--purple); }
+    
+    .dot:hover, .dot:focus, .dot.sonify-focused {
+      r: 8;
+      outline: none;
+    }
+    
+    .dot.sonify-focused {
+      filter: drop-shadow(0 0 8px var(--accent-glow));
+    }
+    
+    .axis text { fill: var(--text-muted); font-size: 11px; }
+    .axis path, .axis line { stroke: var(--border); }
+    .grid line { stroke: var(--border); stroke-opacity: 0.3; }
+    
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+    }
+    
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .legend-dot.revenue { background: var(--accent); }
+    .legend-dot.expenses { background: var(--purple); }
+    
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+    
+    .btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+    }
+    
+    .btn:hover { background: var(--accent-light); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn:focus { outline: 2px solid var(--accent-light); outline-offset: 2px; }
+    
+    .btn--ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+    }
+    .btn--ghost:hover { background: var(--border); }
+    
+    .btn--purple { background: var(--purple); }
+    .btn--purple:hover { background: #a78bfa; }
+    
+    .btn.active {
+      box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+    }
+    
+    .status {
+      text-align: center;
+      padding: 0.75rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      min-height: 2.5rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .status.playing { color: var(--accent); }
+    
+    /* Mode Toggle */
+    .mode-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .mode-btn {
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.4rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    
+    .mode-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    
+    /* Info */
+    .info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 1rem;
+      border-top: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+    
+    .keyboard-help {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.5rem;
+    }
+    
+    .key-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    
+    kbd {
+      background: var(--bg);
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      border: 1px solid var(--border);
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 class="logo">📈 Line Chart</h1>
+      <p class="tagline">Continuous sonification - hear the trend sweep!</p>
+    </header>
+    
+    <main>
+      <div class="card">
+        <h2 class="card-title">📊 Revenue vs Expenses 2024</h2>
+        
+        <div class="mode-toggle" role="group" aria-label="Playback mode">
+          <button class="mode-btn active" data-mode="continuous">🎵 Continuous</button>
+          <button class="mode-btn" data-mode="discrete">🔘 Discrete</button>
+        </div>
+        
+        <div id="chart" role="img" aria-label="Line chart comparing revenue and expenses over 12 months"></div>
+        
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot revenue"></div>
+            <span>Revenue</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot expenses"></div>
+            <span>Expenses</span>
+          </div>
+        </div>
+        
+        <div class="controls" role="group" aria-label="Playback controls">
+          <button class="btn" id="playRevenue">▶ Play Revenue</button>
+          <button class="btn btn--purple" id="playExpenses">▶ Play Expenses</button>
+          <button class="btn btn--ghost" id="pauseBtn">⏸ Pause</button>
+          <button class="btn btn--ghost" id="stopBtn">⏹ Stop</button>
+        </div>
+        
+        <div class="status" id="status" role="status" aria-live="polite">
+          Click Play or hover over data points
+        </div>
+        
+        <div class="info">
+          <strong>Continuous mode:</strong> Hear the entire trend as a smooth frequency sweep<br>
+          <strong>Discrete mode:</strong> Step through each data point individually
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2 class="card-title">⌨️ Keyboard Shortcuts</h2>
+        <div class="keyboard-help">
+          <div class="key-item"><kbd>Space</kbd> Play/Pause</div>
+          <div class="key-item"><kbd>←</kbd><kbd>→</kbd> Navigate</div>
+          <div class="key-item"><kbd>M</kbd> Toggle mode</div>
+          <div class="key-item"><kbd>+</kbd><kbd>-</kbd> Speed</div>
+          <div class="key-item"><kbd>Esc</kbd> Stop</div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script type="module">
+    import { SonificationEngine, DataMapper } from '../../src/index.js';
+    
+    // Register D3 plugin
+    d3.selection.prototype.sonify = function(options = {}) {
+      const data = [];
+      this.each(function(d, i) {
+        data.push({ datum: d, index: i, element: this });
+      });
+      if (data.length === 0) return null;
+      const engine = new SonificationEngine(options);
+      engine.bind(this, data);
+      return engine;
+    };
+    
+    // ─────────────────────────────────────────────────────────────
+    // DATA
+    // ─────────────────────────────────────────────────────────────
+    
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    const revenueData = [
+      { month: 'Jan', value: 42000 },
+      { month: 'Feb', value: 48000 },
+      { month: 'Mar', value: 45000 },
+      { month: 'Apr', value: 52000 },
+      { month: 'May', value: 58000 },
+      { month: 'Jun', value: 62000 },
+      { month: 'Jul', value: 68000 },
+      { month: 'Aug', value: 72000 },
+      { month: 'Sep', value: 65000 },
+      { month: 'Oct', value: 70000 },
+      { month: 'Nov', value: 78000 },
+      { month: 'Dec', value: 85000 }
+    ];
+    
+    const expensesData = [
+      { month: 'Jan', value: 38000 },
+      { month: 'Feb', value: 40000 },
+      { month: 'Mar', value: 42000 },
+      { month: 'Apr', value: 44000 },
+      { month: 'May', value: 46000 },
+      { month: 'Jun', value: 48000 },
+      { month: 'Jul', value: 50000 },
+      { month: 'Aug', value: 52000 },
+      { month: 'Sep', value: 51000 },
+      { month: 'Oct', value: 53000 },
+      { month: 'Nov', value: 55000 },
+      { month: 'Dec', value: 58000 }
+    ];
+    
+    // ─────────────────────────────────────────────────────────────
+    // CHART
+    // ─────────────────────────────────────────────────────────────
+    
+    const container = document.getElementById('chart');
+    const margin = { top: 20, right: 30, bottom: 40, left: 60 };
+    const width = container.clientWidth - margin.left - margin.right;
+    const height = 350 - margin.top - margin.bottom;
+    
+    const svg = d3.select('#chart')
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
+    
+    // Scales
+    const x = d3.scalePoint()
+      .domain(months)
+      .range([0, width]);
+    
+    const y = d3.scaleLinear()
+      .domain([0, 100000])
+      .range([height, 0]);
+    
+    // Grid
+    svg.append('g')
+      .attr('class', 'grid')
+      .call(d3.axisLeft(y).tickSize(-width).tickFormat(''));
+    
+    // Axes
+    svg.append('g')
+      .attr('class', 'axis')
+      .attr('transform', `translate(0,${height})`)
+      .call(d3.axisBottom(x));
+    
+    svg.append('g')
+      .attr('class', 'axis')
+      .call(d3.axisLeft(y).ticks(5).tickFormat(d => `$${d/1000}k`));
+    
+    // Line generator
+    const line = d3.line()
+      .x(d => x(d.month))
+      .y(d => y(d.value))
+      .curve(d3.curveMonotoneX);
+    
+    // Revenue line
+    svg.append('path')
+      .datum(revenueData)
+      .attr('class', 'line line-revenue')
+      .attr('d', line);
+    
+    // Expenses line
+    svg.append('path')
+      .datum(expensesData)
+      .attr('class', 'line line-expenses')
+      .attr('d', line);
+    
+    // Revenue dots
+    const revenueDots = svg.selectAll('.dot-revenue')
+      .data(revenueData)
+      .enter()
+      .append('circle')
+      .attr('class', 'dot dot-revenue')
+      .attr('cx', d => x(d.month))
+      .attr('cy', d => y(d.value))
+      .attr('r', 5)
+      .attr('aria-label', d => `Revenue ${d.month}: $${d.value.toLocaleString()}`);
+    
+    // Expenses dots
+    const expensesDots = svg.selectAll('.dot-expenses')
+      .data(expensesData)
+      .enter()
+      .append('circle')
+      .attr('class', 'dot dot-expenses')
+      .attr('cx', d => x(d.month))
+      .attr('cy', d => y(d.value))
+      .attr('r', 5)
+      .attr('aria-label', d => `Expenses ${d.month}: $${d.value.toLocaleString()}`);
+    
+    // ─────────────────────────────────────────────────────────────
+    // SONIFICATION
+    // ─────────────────────────────────────────────────────────────
+    
+    let currentMode = 'continuous';
+    let revenueSonification = null;
+    let expensesSonification = null;
+    
+    function createSonifications() {
+      if (revenueSonification) revenueSonification.destroy();
+      if (expensesSonification) expensesSonification.destroy();
+      
+      const commonOptions = {
+        pitch: { field: 'value', range: [220, 880], scale: 'pentatonic' },
+        duration: 200,
+        gap: 30,
+        mode: currentMode,
+        markers: { start: true, end: true }
+      };
+      
+      revenueSonification = revenueDots.sonify(commonOptions);
+      expensesSonification = expensesDots.sonify({
+        ...commonOptions,
+        pitch: { field: 'value', range: [180, 720], scale: 'minor' }
+      });
+    }
+    
+    createSonifications();
+    
+    // ─────────────────────────────────────────────────────────────
+    // UI
+    // ─────────────────────────────────────────────────────────────
+    
+    const status = document.getElementById('status');
+    
+    function updateStatus(msg, isPlaying = false) {
+      status.textContent = msg;
+      status.classList.toggle('playing', isPlaying);
+    }
+    
+    // Mode toggle
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
+        createSonifications();
+        updateStatus(`Mode: ${currentMode}`);
+      });
+    });
+    
+    // Play buttons
+    document.getElementById('playRevenue').addEventListener('click', () => {
+      expensesSonification?.stop();
+      revenueSonification?.play();
+      updateStatus('Playing Revenue...', true);
+    });
+    
+    document.getElementById('playExpenses').addEventListener('click', () => {
+      revenueSonification?.stop();
+      expensesSonification?.play();
+      updateStatus('Playing Expenses...', true);
+    });
+    
+    document.getElementById('pauseBtn').addEventListener('click', () => {
+      revenueSonification?.pause();
+      expensesSonification?.pause();
+      updateStatus('Paused');
+    });
+    
+    document.getElementById('stopBtn').addEventListener('click', () => {
+      revenueSonification?.stop();
+      expensesSonification?.stop();
+      updateStatus('Stopped');
+    });
+    
+    // Hover status
+    revenueDots.on('mouseenter', (e, d) => {
+      updateStatus(`Revenue ${d.month}: $${d.value.toLocaleString()}`);
+    });
+    
+    expensesDots.on('mouseenter', (e, d) => {
+      updateStatus(`Expenses ${d.month}: $${d.value.toLocaleString()}`);
+    });
+    
+    // Global keyboard
+    document.addEventListener('keydown', (e) => {
+      if (e.target.matches('button')) return;
+      
+      if (e.key === ' ') {
+        e.preventDefault();
+        if (revenueSonification?.isPlaying()) {
+          revenueSonification.toggle();
+        } else if (expensesSonification?.isPlaying()) {
+          expensesSonification.toggle();
+        } else {
+          revenueSonification?.play();
+        }
+      }
+      
+      if (e.key === 'm' || e.key === 'M') {
+        currentMode = currentMode === 'continuous' ? 'discrete' : 'continuous';
+        document.querySelectorAll('.mode-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.mode === currentMode);
+        });
+        createSonifications();
+        updateStatus(`Mode: ${currentMode}`);
+      }
+    });
+  </script>
+</body>
+</html>
+

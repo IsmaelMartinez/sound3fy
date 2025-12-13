@@ -1,5 +1,6 @@
 /**
  * SonificationEngine - Full-featured sonification with accessibility
+ * Supports bar charts, line charts, scatter plots, and more
  */
 
 import { AudioEngine } from './AudioEngine.js';
@@ -19,6 +20,12 @@ export class SonificationEngine {
     this.paused = false;
     this.timer = null;
     this.speed = 1;
+    this.mode = options.mode || 'discrete'; // 'discrete' or 'continuous'
+    
+    // For continuous mode
+    this.sweepOscillator = null;
+    this.sweepGain = null;
+    this.sweepStartTime = 0;
     
     // Accessibility
     this.liveRegion = null;
@@ -35,6 +42,16 @@ export class SonificationEngine {
     this.selection = selection;
     this.data = data;
     this.mapper.analyze(data);
+    
+    // Auto-detect mode based on element type
+    if (this.options.mode === undefined) {
+      selection.each(function() {
+        const tagName = this.tagName?.toLowerCase();
+        if (tagName === 'path' || tagName === 'line') {
+          // Line chart detected
+        }
+      });
+    }
     
     const a11y = this.options.accessibility || {};
     
@@ -96,7 +113,13 @@ export class SonificationEngine {
       }
     }
     
-    this.scheduleNext();
+    // Choose playback mode
+    if (this.mode === 'continuous') {
+      this.playContinuous();
+    } else {
+      this.scheduleNext();
+    }
+    
     return this;
   }
   
@@ -105,6 +128,7 @@ export class SonificationEngine {
     if (!this.playing) return this;
     this.paused = true;
     clearTimeout(this.timer);
+    this.stopContinuous();
     this.announce('Paused');
     return this;
   }
@@ -115,6 +139,7 @@ export class SonificationEngine {
     this.paused = false;
     this.index = -1;
     clearTimeout(this.timer);
+    this.stopContinuous();
     this.clearFocus();
     this.announce('Stopped');
     return this;
@@ -131,11 +156,139 @@ export class SonificationEngine {
     return this;
   }
   
+  /** Set playback mode */
+  setMode(mode) {
+    this.mode = mode === 'continuous' ? 'continuous' : 'discrete';
+    return this;
+  }
+  
   // ─────────────────────────────────────────────────────────────
-  // NAVIGATION
+  // CONTINUOUS MODE (for line charts)
   // ─────────────────────────────────────────────────────────────
   
-  /** Go to next point */
+  /** Play continuous frequency sweep */
+  playContinuous() {
+    if (!this.playing || this.paused || this.data.length === 0) return;
+    
+    this.audio.init();
+    const ctx = this.audio.context;
+    const now = ctx.currentTime;
+    
+    // Calculate total duration
+    const baseDuration = (this.options.duration || 200) / 1000;
+    const totalDuration = (this.data.length * baseDuration) / this.speed;
+    
+    // Create oscillator
+    this.sweepOscillator = ctx.createOscillator();
+    this.sweepGain = ctx.createGain();
+    const panner = ctx.createStereoPanner();
+    
+    this.sweepOscillator.type = 'sine';
+    
+    // Connect
+    this.sweepOscillator.connect(this.sweepGain);
+    this.sweepGain.connect(panner);
+    panner.connect(this.audio.masterGain);
+    
+    // Schedule frequency changes
+    const freqParam = this.sweepOscillator.frequency;
+    const panParam = panner.pan;
+    const gainParam = this.sweepGain.gain;
+    
+    // Get all frequencies
+    const frequencies = this.data.map((item, i) => 
+      this.mapper.map(item, i, this.data.length).frequency
+    );
+    
+    // Set initial values
+    freqParam.setValueAtTime(frequencies[0], now);
+    gainParam.setValueAtTime(0, now);
+    gainParam.linearRampToValueAtTime(0.5, now + 0.05); // Fade in
+    panParam.setValueAtTime(-0.7, now);
+    
+    // Schedule frequency and pan ramps
+    const timePerPoint = totalDuration / this.data.length;
+    
+    for (let i = 1; i < frequencies.length; i++) {
+      const time = now + (i * timePerPoint);
+      freqParam.linearRampToValueAtTime(frequencies[i], time);
+      
+      // Pan from left to right
+      const pan = -0.7 + (i / (frequencies.length - 1)) * 1.4;
+      panParam.linearRampToValueAtTime(pan, time);
+    }
+    
+    // Fade out at end
+    gainParam.setValueAtTime(0.5, now + totalDuration - 0.1);
+    gainParam.linearRampToValueAtTime(0, now + totalDuration);
+    
+    // Start
+    this.sweepOscillator.start(now);
+    this.sweepOscillator.stop(now + totalDuration + 0.1);
+    this.sweepStartTime = now;
+    
+    // Track position for focus updates
+    this.trackContinuousPosition(totalDuration);
+    
+    // End marker
+    this.timer = setTimeout(() => {
+      if (this.options.markers?.end !== false) {
+        this.audio.playMarker('end');
+      }
+      this.announce('Playback complete');
+      this.playing = false;
+      this.index = -1;
+      this.clearFocus();
+    }, totalDuration * 1000);
+  }
+  
+  /** Track position during continuous playback */
+  trackContinuousPosition(totalDuration) {
+    if (!this.playing || this.paused) return;
+    
+    const ctx = this.audio.context;
+    const elapsed = ctx.currentTime - this.sweepStartTime;
+    const progress = Math.min(1, elapsed / totalDuration);
+    const newIndex = Math.floor(progress * this.data.length);
+    
+    if (newIndex !== this.index && newIndex < this.data.length) {
+      this.index = newIndex;
+      const item = this.data[this.index];
+      this.updateFocus(item?.element);
+      
+      // Announce every few points
+      if (this.index % Math.max(1, Math.floor(this.data.length / 5)) === 0) {
+        this.announce(this.mapper.describe(item, this.index, this.data.length));
+      }
+    }
+    
+    if (progress < 1) {
+      requestAnimationFrame(() => this.trackContinuousPosition(totalDuration));
+    }
+  }
+  
+  /** Stop continuous playback */
+  stopContinuous() {
+    try {
+      if (this.sweepOscillator) {
+        this.sweepOscillator.stop();
+        this.sweepOscillator.disconnect();
+      }
+      if (this.sweepGain) {
+        this.sweepGain.disconnect();
+      }
+    } catch (e) {
+      // Already stopped
+    }
+    this.sweepOscillator = null;
+    this.sweepGain = null;
+  }
+  
+  // ─────────────────────────────────────────────────────────────
+  // DISCRETE MODE (for bar charts)
+  // ─────────────────────────────────────────────────────────────
+  
+  /** Navigate to next point */
   next() {
     this.audio.init();
     const newIndex = Math.min(this.index + 1, this.data.length - 1);
@@ -179,18 +332,14 @@ export class SonificationEngine {
     this.index = Math.max(0, Math.min(idx, this.data.length - 1));
     this.playPoint(this.index);
     
-    if (this.playing && !this.paused) {
+    if (this.playing && !this.paused && this.mode === 'discrete') {
       clearTimeout(this.timer);
       this.scheduleNext();
     }
     return this;
   }
   
-  // ─────────────────────────────────────────────────────────────
-  // PLAYBACK INTERNALS
-  // ─────────────────────────────────────────────────────────────
-  
-  /** Schedule next point */
+  /** Schedule next point (discrete mode) */
   scheduleNext() {
     if (!this.playing || this.paused) return;
     
@@ -263,7 +412,8 @@ export class SonificationEngine {
         '+': () => { e.preventDefault(); self.setSpeed(self.speed * 1.25); self.announce(`Speed: ${Math.round(self.speed * 100)}%`); },
         '=': () => { e.preventDefault(); self.setSpeed(self.speed * 1.25); self.announce(`Speed: ${Math.round(self.speed * 100)}%`); },
         '-': () => { e.preventDefault(); self.setSpeed(self.speed * 0.8); self.announce(`Speed: ${Math.round(self.speed * 100)}%`); },
-        '_': () => { e.preventDefault(); self.setSpeed(self.speed * 0.8); self.announce(`Speed: ${Math.round(self.speed * 100)}%`); }
+        '_': () => { e.preventDefault(); self.setSpeed(self.speed * 0.8); self.announce(`Speed: ${Math.round(self.speed * 100)}%`); },
+        'm': () => { e.preventDefault(); self.setMode(self.mode === 'continuous' ? 'discrete' : 'continuous'); self.announce(`Mode: ${self.mode}`); }
       };
       
       handlers[e.key]?.();
@@ -339,7 +489,6 @@ export class SonificationEngine {
   announce(message) {
     if (!this.liveRegion) return;
     this.liveRegion.textContent = '';
-    // Use setTimeout to ensure screen readers catch the change
     setTimeout(() => {
       if (this.liveRegion) this.liveRegion.textContent = message;
     }, 50);
@@ -353,7 +502,6 @@ export class SonificationEngine {
     
     if (element) {
       element.classList.add('sonify-focused');
-      // Don't steal focus during hover
       if (document.activeElement?.closest('svg') || document.activeElement === document.body) {
         element.focus({ preventScroll: true });
       }
@@ -375,6 +523,7 @@ export class SonificationEngine {
   isPaused() { return this.paused; }
   currentIndex() { return this.index; }
   length() { return this.data.length; }
+  getMode() { return this.mode; }
   
   // ─────────────────────────────────────────────────────────────
   // UTILITY
@@ -389,7 +538,6 @@ export class SonificationEngine {
     this.stop();
     this.audio.destroy();
     
-    // Remove event listeners
     const keyHandler = this._keyHandler;
     const hoverHandler = this._hoverHandler;
     
