@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sound3fy - Basic Example</title>
+  
+  <style>
+    :root {
+      --bg-primary: #0f0f1a;
+      --bg-secondary: #1a1a2e;
+      --accent: #7c3aed;
+      --accent-light: #a78bfa;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --border: #2d2d44;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+    
+    .chart-container {
+      background: var(--bg-secondary);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+    }
+    
+    .chart-title {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .chart-title::before {
+      content: '📊';
+    }
+    
+    #chart {
+      width: 100%;
+      height: 300px;
+    }
+    
+    .bar {
+      fill: var(--accent);
+      transition: fill 0.2s ease;
+    }
+    
+    .bar:hover,
+    .bar:focus,
+    .bar.sonify-focused {
+      fill: var(--accent-light);
+      outline: none;
+    }
+    
+    .bar:focus {
+      outline: 2px solid var(--accent-light);
+      outline-offset: 2px;
+    }
+    
+    .axis {
+      font-size: 12px;
+    }
+    
+    .axis path,
+    .axis line {
+      stroke: var(--border);
+    }
+    
+    .axis text {
+      fill: var(--text-muted);
+    }
+    
+    .controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    
+    .btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+    
+    .btn:hover {
+      background: var(--accent-light);
+      transform: translateY(-2px);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn:focus {
+      outline: 2px solid var(--accent-light);
+      outline-offset: 2px;
+    }
+    
+    .btn--secondary {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+    }
+    
+    .btn--secondary:hover {
+      background: var(--border);
+    }
+    
+    .status {
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      min-height: 1.5em;
+    }
+    
+    .status.playing {
+      color: var(--success);
+    }
+    
+    .info-panel {
+      background: var(--bg-secondary);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+    }
+    
+    .info-panel h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      color: var(--accent-light);
+    }
+    
+    .info-panel ul {
+      list-style: none;
+      display: grid;
+      gap: 0.5rem;
+    }
+    
+    .info-panel li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+    }
+    
+    .key {
+      background: var(--bg-primary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      border: 1px solid var(--border);
+    }
+    
+    /* Screen reader only */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>sound3fy</h1>
+      <p class="subtitle">Making data visualizations accessible through sound</p>
+    </header>
+    
+    <main>
+      <div class="chart-container">
+        <h2 class="chart-title">Monthly Sales Data (2024)</h2>
+        <div id="chart" role="img" aria-label="Bar chart showing monthly sales data for 2024. Use keyboard to navigate."></div>
+        
+        <div class="controls" role="group" aria-label="Sonification controls">
+          <button class="btn" id="playBtn" aria-label="Play sonification">
+            <span aria-hidden="true">▶</span> Play
+          </button>
+          <button class="btn btn--secondary" id="pauseBtn" aria-label="Pause sonification">
+            <span aria-hidden="true">⏸</span> Pause
+          </button>
+          <button class="btn btn--secondary" id="stopBtn" aria-label="Stop sonification">
+            <span aria-hidden="true">⏹</span> Stop
+          </button>
+          <button class="btn btn--secondary" id="prevBtn" aria-label="Previous data point">
+            <span aria-hidden="true">⏮</span> Prev
+          </button>
+          <button class="btn btn--secondary" id="nextBtn" aria-label="Next data point">
+            <span aria-hidden="true">⏭</span> Next
+          </button>
+        </div>
+        
+        <div class="status" id="status" role="status" aria-live="polite">
+          Click Play or press Space to start
+        </div>
+      </div>
+      
+      <div class="info-panel">
+        <h2>⌨️ Keyboard Controls</h2>
+        <ul>
+          <li><span class="key">Space</span> Play / Pause</li>
+          <li><span class="key">←</span> Previous data point</li>
+          <li><span class="key">→</span> Next data point</li>
+          <li><span class="key">Home</span> Go to start</li>
+          <li><span class="key">End</span> Go to end</li>
+          <li><span class="key">Esc</span> Stop playback</li>
+        </ul>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Screen reader live region -->
+  <div id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+  
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    // Sample data: Monthly sales
+    const data = [
+      { month: 'Jan', value: 4500 },
+      { month: 'Feb', value: 5200 },
+      { month: 'Mar', value: 4800 },
+      { month: 'Apr', value: 6100 },
+      { month: 'May', value: 5800 },
+      { month: 'Jun', value: 7200 },
+      { month: 'Jul', value: 8500 },
+      { month: 'Aug', value: 7800 },
+      { month: 'Sep', value: 6900 },
+      { month: 'Oct', value: 7500 },
+      { month: 'Nov', value: 8200 },
+      { month: 'Dec', value: 9500 }
+    ];
+    
+    // Chart dimensions
+    const margin = { top: 20, right: 20, bottom: 50, left: 60 };
+    const container = document.getElementById('chart');
+    const width = container.clientWidth - margin.left - margin.right;
+    const height = 300 - margin.top - margin.bottom;
+    
+    // Create SVG
+    const svg = d3.select('#chart')
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .attr('role', 'graphics-document')
+      .attr('aria-label', 'Bar chart of monthly sales data')
+      .append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
+    
+    // Scales
+    const x = d3.scaleBand()
+      .domain(data.map(d => d.month))
+      .range([0, width])
+      .padding(0.2);
+    
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(data, d => d.value) * 1.1])
+      .range([height, 0]);
+    
+    // Axes
+    svg.append('g')
+      .attr('class', 'axis x-axis')
+      .attr('transform', `translate(0,${height})`)
+      .call(d3.axisBottom(x));
+    
+    svg.append('g')
+      .attr('class', 'axis y-axis')
+      .call(d3.axisLeft(y).ticks(5).tickFormat(d => `$${d/1000}k`));
+    
+    // Bars
+    const bars = svg.selectAll('.bar')
+      .data(data)
+      .enter()
+      .append('rect')
+      .attr('class', 'bar')
+      .attr('x', d => x(d.month))
+      .attr('y', d => y(d.value))
+      .attr('width', x.bandwidth())
+      .attr('height', d => height - y(d.value))
+      .attr('tabindex', 0)
+      .attr('role', 'graphics-symbol')
+      .attr('aria-roledescription', 'bar')
+      .attr('aria-label', d => `${d.month}: $${d.value.toLocaleString()}`);
+    
+    // ============================================
+    // SONIFICATION (using basic Web Audio for now)
+    // This will be replaced by the sound3fy library
+    // ============================================
+    
+    class SimpleSonification {
+      constructor(data, options = {}) {
+        this.data = data;
+        this.options = {
+          minFreq: 220,
+          maxFreq: 880,
+          duration: 200,
+          gap: 50,
+          ...options
+        };
+        
+        this.audioContext = null;
+        this.masterGain = null;
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.currentIndex = -1;
+        this.timeoutId = null;
+      }
+      
+      init() {
+        if (this.audioContext) return;
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.masterGain = this.audioContext.createGain();
+        this.masterGain.gain.value = 0.5;
+        this.masterGain.connect(this.audioContext.destination);
+      }
+      
+      valueToFreq(value) {
+        const min = Math.min(...this.data.map(d => d.value));
+        const max = Math.max(...this.data.map(d => d.value));
+        const normalized = (value - min) / (max - min);
+        return this.options.minFreq + normalized * (this.options.maxFreq - this.options.minFreq);
+      }
+      
+      playTone(frequency, duration, pan = 0) {
+        this.init();
+        
+        if (this.audioContext.state === 'suspended') {
+          this.audioContext.resume();
+        }
+        
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        const panner = this.audioContext.createStereoPanner();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.value = frequency;
+        panner.pan.value = pan;
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(panner);
+        panner.connect(this.masterGain);
+        
+        const now = this.audioContext.currentTime;
+        const durationSec = duration / 1000;
+        
+        // ADSR envelope
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.7, now + 0.02);
+        gainNode.gain.linearRampToValueAtTime(0.5, now + 0.05);
+        gainNode.gain.setValueAtTime(0.5, now + durationSec - 0.05);
+        gainNode.gain.linearRampToValueAtTime(0, now + durationSec);
+        
+        oscillator.start(now);
+        oscillator.stop(now + durationSec);
+      }
+      
+      playMarker(type) {
+        this.init();
+        const markers = {
+          start: { freq: 880, duration: 100 },
+          end: { freq: 220, duration: 150 }
+        };
+        const m = markers[type];
+        if (m) this.playTone(m.freq, m.duration);
+      }
+      
+      play() {
+        if (this.isPlaying && !this.isPaused) return;
+        
+        this.init();
+        this.isPlaying = true;
+        this.isPaused = false;
+        
+        if (this.currentIndex < 0) {
+          this.currentIndex = 0;
+          this.playMarker('start');
+          setTimeout(() => this.playNext(), 150);
+        } else {
+          this.playNext();
+        }
+        
+        this.updateStatus('Playing...');
+      }
+      
+      playNext() {
+        if (!this.isPlaying || this.isPaused) return;
+        
+        if (this.currentIndex >= this.data.length) {
+          this.playMarker('end');
+          this.isPlaying = false;
+          this.currentIndex = -1;
+          this.updateStatus('Playback complete');
+          this.clearFocus();
+          return;
+        }
+        
+        this.playSinglePoint(this.currentIndex);
+        this.currentIndex++;
+        
+        this.timeoutId = setTimeout(
+          () => this.playNext(),
+          this.options.duration + this.options.gap
+        );
+      }
+      
+      playSinglePoint(index) {
+        const d = this.data[index];
+        const freq = this.valueToFreq(d.value);
+        const pan = (index / (this.data.length - 1)) * 1.6 - 0.8; // -0.8 to 0.8
+        
+        this.playTone(freq, this.options.duration, pan);
+        this.updateFocus(index);
+        this.announce(`${d.month}: $${d.value.toLocaleString()}`);
+        this.updateStatus(`Playing: ${d.month} - $${d.value.toLocaleString()}`);
+      }
+      
+      pause() {
+        if (!this.isPlaying) return;
+        this.isPaused = true;
+        clearTimeout(this.timeoutId);
+        this.updateStatus('Paused');
+      }
+      
+      stop() {
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.currentIndex = -1;
+        clearTimeout(this.timeoutId);
+        this.clearFocus();
+        this.updateStatus('Click Play or press Space to start');
+      }
+      
+      toggle() {
+        if (this.isPlaying && !this.isPaused) {
+          this.pause();
+        } else {
+          this.play();
+        }
+      }
+      
+      next() {
+        this.init();
+        const newIndex = Math.min(
+          this.currentIndex < 0 ? 0 : this.currentIndex + 1,
+          this.data.length - 1
+        );
+        this.currentIndex = newIndex;
+        this.playSinglePoint(newIndex);
+      }
+      
+      previous() {
+        this.init();
+        const newIndex = Math.max(
+          this.currentIndex <= 0 ? 0 : this.currentIndex - 1,
+          0
+        );
+        this.currentIndex = newIndex;
+        this.playSinglePoint(newIndex);
+      }
+      
+      seek(index) {
+        this.init();
+        this.currentIndex = Math.max(0, Math.min(index, this.data.length - 1));
+        this.playSinglePoint(this.currentIndex);
+      }
+      
+      updateFocus(index) {
+        bars.classed('sonify-focused', false);
+        d3.select(bars.nodes()[index]).classed('sonify-focused', true);
+      }
+      
+      clearFocus() {
+        bars.classed('sonify-focused', false);
+      }
+      
+      announce(message) {
+        const announcer = document.getElementById('announcer');
+        announcer.textContent = '';
+        requestAnimationFrame(() => {
+          announcer.textContent = message;
+        });
+      }
+      
+      updateStatus(message) {
+        const status = document.getElementById('status');
+        status.textContent = message;
+        status.classList.toggle('playing', this.isPlaying && !this.isPaused);
+      }
+    }
+    
+    // Create sonification instance
+    const sonification = new SimpleSonification(data);
+    
+    // Button handlers
+    document.getElementById('playBtn').addEventListener('click', () => sonification.play());
+    document.getElementById('pauseBtn').addEventListener('click', () => sonification.pause());
+    document.getElementById('stopBtn').addEventListener('click', () => sonification.stop());
+    document.getElementById('prevBtn').addEventListener('click', () => sonification.previous());
+    document.getElementById('nextBtn').addEventListener('click', () => sonification.next());
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      // Only handle if chart or controls are focused
+      const chartArea = document.querySelector('.chart-container');
+      if (!chartArea.contains(document.activeElement) && document.activeElement !== document.body) {
+        return;
+      }
+      
+      switch (e.key) {
+        case ' ':
+          e.preventDefault();
+          sonification.toggle();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          sonification.next();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          sonification.previous();
+          break;
+        case 'Home':
+          e.preventDefault();
+          sonification.seek(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          sonification.seek(data.length - 1);
+          break;
+        case 'Escape':
+          e.preventDefault();
+          sonification.stop();
+          break;
+      }
+    });
+    
+    // Bar hover/focus for individual point sonification
+    bars.on('mouseenter', function(event, d) {
+      const index = data.indexOf(d);
+      sonification.init();
+      sonification.playSinglePoint(index);
+    });
+    
+    bars.on('focus', function(event, d) {
+      const index = data.indexOf(d);
+      sonification.init();
+      sonification.playSinglePoint(index);
+    });
+  </script>
+</body>
+</html>
+

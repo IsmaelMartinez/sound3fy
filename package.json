@@ -1,0 +1,53 @@
+{
+  "name": "sound3fy",
+  "version": "0.1.0",
+  "description": "Make D3.js visualizations accessible through sound",
+  "main": "dist/sound3fy.js",
+  "module": "dist/sound3fy.esm.js",
+  "types": "dist/sound3fy.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src/**/*.js",
+    "docs": "typedoc src/index.js"
+  },
+  "keywords": [
+    "d3",
+    "d3js",
+    "sonification",
+    "accessibility",
+    "a11y",
+    "audio",
+    "visualization",
+    "charts",
+    "blind",
+    "screen-reader",
+    "web-audio-api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/sound3fy"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/sound3fy/issues"
+  },
+  "homepage": "https://github.com/your-username/sound3fy#readme",
+  "peerDependencies": {
+    "d3": ">=5.0.0"
+  },
+  "devDependencies": {
+    "d3": "^7.8.5",
+    "eslint": "^8.57.0",
+    "vite": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}
+
