@@ -1,225 +1,108 @@
 /**
- * DataMapper - Maps data values to audio parameters
- * 
- * Handles the translation of data attributes to sound properties
- * like pitch, volume, pan, and duration.
+ * DataMapper - Maps data values to audio parameters (pitch, volume, pan)
  */
 
 export class DataMapper {
   constructor(options = {}) {
     this.options = options;
-    this.scales = {};
-    this.domain = null;
-    this.dataExtent = null;
+    this.extent = null;
   }
   
-  /**
-   * Analyze data to determine domain extents
-   * @param {Array} data - Array of data items
-   */
-  analyzeData(data) {
-    if (!data || data.length === 0) return;
+  /** Analyze data to find min/max values */
+  analyze(data) {
+    const field = this.options.pitch?.field;
+    if (!field || data.length === 0) return;
     
-    const pitchField = this.options.pitch?.field;
-    const volumeField = this.options.volume?.field;
-    
-    // Calculate extents for each mapped field
-    if (pitchField) {
-      this.dataExtent = this.calculateExtent(data, pitchField);
-    }
-    
-    if (volumeField && volumeField !== pitchField) {
-      this.volumeExtent = this.calculateExtent(data, volumeField);
-    }
-  }
-  
-  /**
-   * Calculate min/max extent for a field
-   */
-  calculateExtent(data, field) {
-    const accessor = this.createAccessor(field);
+    const accessor = typeof field === 'function' ? field : (d) => d[field];
     const values = data.map(d => accessor(d.datum, d.index));
     
-    return {
-      min: Math.min(...values),
-      max: Math.max(...values)
-    };
+    this.extent = { min: Math.min(...values), max: Math.max(...values) };
   }
   
-  /**
-   * Create an accessor function from field specification
-   */
-  createAccessor(field) {
-    if (typeof field === 'function') {
-      return field;
-    }
-    if (typeof field === 'string') {
-      return (d) => d[field];
-    }
-    return (d) => d;
-  }
-  
-  /**
-   * Map a single data point to audio parameters
-   * 
-   * @param {Object} dataItem - Data item with datum, index, element
-   * @param {number} total - Total number of data points
-   * @returns {Object} Audio parameters { frequency, volume, pan, duration }
-   */
-  mapPoint(dataItem, total) {
-    const { datum, index } = dataItem;
-    
+  /** Map a data point to audio parameters */
+  map(dataItem, index, total) {
     return {
-      frequency: this.mapPitch(datum, index),
-      volume: this.mapVolume(datum, index),
+      frequency: this.mapPitch(dataItem),
+      volume: this.mapVolume(dataItem),
       pan: this.mapPan(index, total),
-      duration: this.mapDuration(datum, index)
+      duration: (this.options.duration || 200) / 1000
     };
   }
   
-  /**
-   * Map data value to frequency
-   */
-  mapPitch(datum, index) {
+  /** Map value to frequency (pitch) */
+  mapPitch(dataItem) {
+    const { datum, index } = dataItem;
     const config = this.options.pitch || {};
-    const field = config.field;
     const range = config.range || [220, 880];
+    const field = config.field;
     
+    // Get value
+    let value;
     if (!field) {
-      // No pitch mapping, use default based on value or index
-      if (typeof datum === 'number') {
-        return this.linearMap(datum, this.dataExtent, range);
-      }
-      return 440; // Default A4
+      value = typeof datum === 'number' ? datum : 440;
+      if (typeof datum !== 'number') return 440;
+    } else {
+      const accessor = typeof field === 'function' ? field : (d) => d[field];
+      value = accessor(datum, index);
     }
     
-    const accessor = this.createAccessor(field);
-    const value = accessor(datum, index);
-    
-    if (this.dataExtent) {
-      return this.linearMap(value, this.dataExtent, range);
-    }
-    
-    return value; // Assume it's already a frequency
+    // Map to frequency range
+    return this.lerp(value, this.extent, range);
   }
   
-  /**
-   * Map data value to volume
-   */
-  mapVolume(datum, index) {
+  /** Map value to volume */
+  mapVolume(dataItem) {
     const config = this.options.volume || {};
-    const field = config.field;
+    if (!config.field) return 0.5;
+    
+    const accessor = typeof config.field === 'function' ? config.field : (d) => d[config.field];
+    const value = accessor(dataItem.datum, dataItem.index);
     const range = config.range || [0.3, 0.8];
     
-    if (!field) {
-      return 0.5; // Default volume
-    }
-    
-    const accessor = this.createAccessor(field);
-    const value = accessor(datum, index);
-    const extent = this.volumeExtent || this.dataExtent;
-    
-    if (extent) {
-      return this.linearMap(value, extent, range);
-    }
-    
-    return Math.max(0, Math.min(1, value));
+    return this.lerp(value, this.extent, range);
   }
   
-  /**
-   * Map position to stereo pan
-   */
+  /** Map position to stereo pan (-1 left, 1 right) */
   mapPan(index, total) {
-    const config = this.options.pan || {};
-    const range = config.range || [-0.8, 0.8];
-    
-    if (total <= 1) {
-      return 0; // Center if single point
-    }
-    
-    // Linear pan from left to right
+    if (total <= 1) return 0;
+    const range = this.options.pan?.range || [-0.8, 0.8];
     const normalized = index / (total - 1);
     return range[0] + normalized * (range[1] - range[0]);
   }
   
-  /**
-   * Map data value to duration
-   */
-  mapDuration(datum, index) {
-    const baseDuration = this.options.duration || 200;
-    
-    // Could be extended to map duration to data
-    return baseDuration / 1000; // Convert to seconds
-  }
-  
-  /**
-   * Linear interpolation between ranges
-   */
-  linearMap(value, domain, range) {
+  /** Linear interpolation */
+  lerp(value, domain, range) {
     if (!domain || domain.min === domain.max) {
       return (range[0] + range[1]) / 2;
     }
-    
-    const normalized = (value - domain.min) / (domain.max - domain.min);
-    const clamped = Math.max(0, Math.min(1, normalized));
-    
-    return range[0] + clamped * (range[1] - range[0]);
+    const t = Math.max(0, Math.min(1, (value - domain.min) / (domain.max - domain.min)));
+    return range[0] + t * (range[1] - range[0]);
   }
   
-  /**
-   * Map entire dataset to audio parameters
-   */
-  mapDataset(data) {
-    this.analyzeData(data);
-    return data.map((item, i) => this.mapPoint(item, data.length));
-  }
-  
-  /**
-   * Get human-readable description of a data point
-   */
-  describePoint(dataItem, index, total) {
+  /** Get human-readable description of a data point */
+  describe(dataItem, index, total) {
     const { datum } = dataItem;
-    const pitchField = this.options.pitch?.field;
+    const field = this.options.pitch?.field;
     
-    let description = `Point ${index + 1} of ${total}`;
+    let desc = `Point ${index + 1} of ${total}`;
     
-    if (pitchField) {
-      const accessor = this.createAccessor(pitchField);
-      const value = accessor(datum, index);
-      description += `. Value: ${this.formatValue(value)}`;
+    if (field) {
+      const accessor = typeof field === 'function' ? field : (d) => d[field];
+      desc += `. Value: ${this.format(accessor(datum, index))}`;
     } else if (typeof datum === 'number') {
-      description += `. Value: ${this.formatValue(datum)}`;
-    } else if (typeof datum === 'object') {
-      // Try to find a reasonable value to announce
-      const keys = ['value', 'y', 'count', 'amount', 'total'];
-      for (const key of keys) {
-        if (datum[key] !== undefined) {
-          description += `. ${key}: ${this.formatValue(datum[key])}`;
-          break;
-        }
-      }
+      desc += `. Value: ${this.format(datum)}`;
+    } else if (datum?.value !== undefined) {
+      desc += `. Value: ${this.format(datum.value)}`;
     }
     
-    return description;
+    return desc;
   }
   
-  /**
-   * Format value for announcement
-   */
-  formatValue(value) {
-    if (typeof value === 'number') {
-      // Format with appropriate precision
-      if (Number.isInteger(value)) {
-        return value.toLocaleString();
-      }
-      return value.toLocaleString(undefined, { 
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2 
-      });
-    }
-    return String(value);
+  /** Format number for announcement */
+  format(value) {
+    if (typeof value !== 'number') return String(value);
+    return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(2);
   }
 }
 
 export default DataMapper;
-

@@ -1,401 +1,220 @@
 /**
- * SonificationEngine - Central orchestration for sonification
- * 
- * Coordinates the AudioEngine, DataMapper, and AccessibilityLayer
- * to provide a complete sonification experience.
+ * SonificationEngine - Orchestrates audio, data mapping, and accessibility
  */
 
 import { AudioEngine } from './AudioEngine.js';
 import { DataMapper } from './DataMapper.js';
-import { AccessibilityLayer } from '../accessibility/AccessibilityLayer.js';
 
 export class SonificationEngine {
   constructor(options = {}) {
     this.options = options;
-    this.audioEngine = new AudioEngine();
-    this.dataMapper = new DataMapper(options);
-    this.accessibility = new AccessibilityLayer();
+    this.audio = new AudioEngine();
+    this.mapper = new DataMapper(options);
     
-    this.state = {
-      playing: false,
-      paused: false,
-      currentIndex: -1,
-      data: [],
-      selection: null
-    };
-    
-    this.playbackTimer = null;
-    this.eventListeners = new Map();
+    this.data = [];
+    this.selection = null;
+    this.index = -1;
+    this.playing = false;
+    this.paused = false;
+    this.timer = null;
+    this.liveRegion = null;
   }
   
-  /**
-   * Bind sonification to a D3 selection
-   */
+  /** Bind to D3 selection and data */
   bind(selection, data) {
-    this.state.selection = selection;
-    this.state.data = data;
-    this.dataMapper.analyzeData(data);
+    this.selection = selection;
+    this.data = data;
+    this.mapper.analyze(data);
     
-    // Attach ARIA attributes to elements
-    if (this.options.accessibility?.focusIndicator) {
-      selection.each(function(d, i) {
-        const el = this;
-        el.setAttribute('tabindex', '0');
-        el.setAttribute('role', 'graphics-symbol');
-        el.setAttribute('aria-roledescription', 'data point');
+    // Set up accessibility
+    if (this.options.accessibility?.focus) {
+      selection.each(function() {
+        this.setAttribute('tabindex', '0');
+        this.setAttribute('role', 'graphics-symbol');
       });
     }
     
+    if (this.options.accessibility?.keyboard) {
+      this.setupKeyboard();
+    }
+    
+    if (this.options.accessibility?.announce) {
+      this.setupLiveRegion();
+    }
+    
     return this;
   }
   
-  /**
-   * Start playing the sonification
-   */
+  /** Start playback */
   async play() {
-    if (this.state.playing && !this.state.paused) return this;
+    if (this.playing && !this.paused) return this;
     
-    // Initialize audio on user gesture
-    this.audioEngine.initialize();
-    await this.audioEngine.resume();
+    this.audio.init();
+    await this.audio.resume();
     
-    this.state.playing = true;
-    this.state.paused = false;
+    this.playing = true;
+    this.paused = false;
     
-    // If starting fresh, play start marker
-    if (this.state.currentIndex < 0) {
-      this.state.currentIndex = 0;
+    if (this.index < 0) {
+      this.index = 0;
       if (this.options.markers?.start) {
-        this.audioEngine.playMarker('start');
+        this.audio.playMarker('start');
         await this.wait(150);
       }
-      this.emit('start');
     }
     
-    // Start playback loop
     this.playNext();
-    
     return this;
   }
   
-  /**
-   * Pause playback
-   */
+  /** Pause playback */
   pause() {
-    if (!this.state.playing) return this;
-    
-    this.state.paused = true;
-    if (this.playbackTimer) {
-      clearTimeout(this.playbackTimer);
-      this.playbackTimer = null;
-    }
-    
-    this.emit('pause');
+    this.paused = true;
+    clearTimeout(this.timer);
     return this;
   }
   
-  /**
-   * Stop playback and reset
-   */
+  /** Stop and reset */
   stop() {
-    this.state.playing = false;
-    this.state.paused = false;
-    this.state.currentIndex = -1;
-    
-    if (this.playbackTimer) {
-      clearTimeout(this.playbackTimer);
-      this.playbackTimer = null;
-    }
-    
-    this.audioEngine.stopAll();
-    this.emit('stop');
+    this.playing = false;
+    this.paused = false;
+    this.index = -1;
+    clearTimeout(this.timer);
+    this.clearFocus();
     return this;
   }
   
-  /**
-   * Toggle play/pause
-   */
+  /** Toggle play/pause */
   toggle() {
-    if (this.state.playing && !this.state.paused) {
-      return this.pause();
-    }
-    return this.play();
+    return (this.playing && !this.paused) ? this.pause() : this.play();
   }
   
-  /**
-   * Play next data point in sequence
-   */
+  /** Play next point in sequence */
   playNext() {
-    if (!this.state.playing || this.state.paused) return;
+    if (!this.playing || this.paused) return;
     
-    const { data, currentIndex } = this.state;
-    
-    if (currentIndex >= data.length) {
-      // End of data
-      if (this.options.markers?.end) {
-        this.audioEngine.playMarker('end');
-      }
-      this.state.playing = false;
-      this.state.currentIndex = -1;
-      this.emit('end');
+    if (this.index >= this.data.length) {
+      if (this.options.markers?.end) this.audio.playMarker('end');
+      this.playing = false;
+      this.index = -1;
+      this.clearFocus();
       return;
     }
     
-    // Play current point
-    this.playPoint(currentIndex);
+    this.playPoint(this.index);
+    this.index++;
     
-    // Schedule next point
-    const duration = this.options.duration || 200;
-    const gap = this.options.gap || 50;
-    
-    this.state.currentIndex++;
-    this.playbackTimer = setTimeout(() => this.playNext(), duration + gap);
+    const delay = (this.options.duration || 200) + (this.options.gap || 50);
+    this.timer = setTimeout(() => this.playNext(), delay);
   }
   
-  /**
-   * Play a specific data point
-   */
-  playPoint(index) {
-    const { data } = this.state;
+  /** Play a specific data point */
+  playPoint(idx) {
+    if (idx < 0 || idx >= this.data.length) return;
     
-    if (index < 0 || index >= data.length) return;
+    const item = this.data[idx];
+    const params = this.mapper.map(item, idx, this.data.length);
     
-    const dataItem = data[index];
-    const audioParams = this.dataMapper.mapPoint(dataItem, data.length);
-    
-    // Play the tone
-    this.audioEngine.playTone({
-      frequency: audioParams.frequency,
-      duration: audioParams.duration,
-      volume: audioParams.volume,
-      pan: audioParams.pan,
-      type: 'sine',
-      envelope: this.options.envelope
-    });
-    
-    // Announce value if accessibility is enabled
-    if (this.options.accessibility?.announceValues) {
-      const description = this.dataMapper.describePoint(dataItem, index, data.length);
-      this.accessibility.announce(description);
-    }
-    
-    // Update focus if enabled
-    if (this.options.accessibility?.focusIndicator && dataItem.element) {
-      this.updateFocus(dataItem.element);
-    }
-    
-    this.emit('point', dataItem.datum, index);
+    this.audio.playTone(params);
+    this.announce(this.mapper.describe(item, idx, this.data.length));
+    this.updateFocus(item.element);
   }
   
-  /**
-   * Go to next data point (for keyboard navigation)
-   */
+  /** Navigate to next point */
   next() {
-    const { data, currentIndex } = this.state;
-    const newIndex = Math.min(currentIndex + 1, data.length - 1);
-    
-    if (newIndex !== currentIndex || currentIndex < 0) {
-      this.state.currentIndex = newIndex < 0 ? 0 : newIndex;
-      this.audioEngine.initialize();
-      this.playPoint(this.state.currentIndex);
-    }
-    
+    this.audio.init();
+    this.index = Math.min(Math.max(0, this.index + 1), this.data.length - 1);
+    this.playPoint(this.index);
     return this;
   }
   
-  /**
-   * Go to previous data point
-   */
+  /** Navigate to previous point */
   previous() {
-    const { currentIndex } = this.state;
-    const newIndex = Math.max(currentIndex - 1, 0);
-    
-    if (newIndex !== currentIndex) {
-      this.state.currentIndex = newIndex;
-      this.audioEngine.initialize();
-      this.playPoint(this.state.currentIndex);
-    }
-    
+    this.audio.init();
+    this.index = Math.max(0, this.index - 1);
+    this.playPoint(this.index);
     return this;
   }
   
-  /**
-   * Seek to specific index
-   */
-  seek(index) {
-    const { data } = this.state;
-    const clampedIndex = Math.max(0, Math.min(index, data.length - 1));
-    
-    this.state.currentIndex = clampedIndex;
-    
-    if (this.state.playing && !this.state.paused) {
-      // Continue playing from new position
-      if (this.playbackTimer) {
-        clearTimeout(this.playbackTimer);
-      }
-      this.playNext();
-    }
-    
-    return this;
-  }
-  
-  /**
-   * Seek by percentage
-   */
-  seekPercent(percent) {
-    const { data } = this.state;
-    const index = Math.round(percent * (data.length - 1));
-    return this.seek(index);
-  }
-  
-  /**
-   * Enable keyboard navigation
-   */
-  enableKeyboardNavigation() {
-    const handleKeydown = (event) => {
-      switch (event.key) {
-        case ' ': // Space
-          event.preventDefault();
-          this.toggle();
-          break;
-        case 'ArrowRight':
-          event.preventDefault();
-          this.next();
-          break;
-        case 'ArrowLeft':
-          event.preventDefault();
-          this.previous();
-          break;
-        case 'Home':
-          event.preventDefault();
-          this.seek(0);
-          break;
-        case 'End':
-          event.preventDefault();
-          this.seek(this.state.data.length - 1);
-          break;
-        case 'Escape':
-          event.preventDefault();
-          this.stop();
-          break;
-      }
+  /** Set up keyboard navigation */
+  setupKeyboard() {
+    const handler = (e) => {
+      const actions = {
+        ' ': () => { e.preventDefault(); this.toggle(); },
+        'ArrowRight': () => { e.preventDefault(); this.next(); },
+        'ArrowLeft': () => { e.preventDefault(); this.previous(); },
+        'Escape': () => { e.preventDefault(); this.stop(); }
+      };
+      actions[e.key]?.();
     };
     
-    // Attach to each element in selection
-    this.state.selection?.each(function() {
-      this.addEventListener('keydown', handleKeydown);
+    this.selection?.each(function() {
+      this.addEventListener('keydown', handler);
     });
     
-    this._keydownHandler = handleKeydown;
-    return this;
+    this._keyHandler = handler;
   }
   
-  /**
-   * Enable screen reader announcements
-   */
-  enableAnnouncements() {
-    this.accessibility.createLiveRegion();
-    return this;
+  /** Set up ARIA live region for announcements */
+  setupLiveRegion() {
+    if (document.getElementById('sound3fy-live')) return;
+    
+    this.liveRegion = document.createElement('div');
+    this.liveRegion.id = 'sound3fy-live';
+    this.liveRegion.setAttribute('role', 'status');
+    this.liveRegion.setAttribute('aria-live', 'polite');
+    this.liveRegion.setAttribute('aria-atomic', 'true');
+    this.liveRegion.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)';
+    document.body.appendChild(this.liveRegion);
+    
+    // Add focus styles
+    if (!document.getElementById('sound3fy-styles')) {
+      const style = document.createElement('style');
+      style.id = 'sound3fy-styles';
+      style.textContent = '.sonify-focused { outline: 3px solid #4A90D9; outline-offset: 2px; }';
+      document.head.appendChild(style);
+    }
   }
   
-  /**
-   * Update visual focus indicator
-   */
+  /** Announce to screen readers */
+  announce(message) {
+    if (!this.liveRegion) return;
+    this.liveRegion.textContent = '';
+    requestAnimationFrame(() => { this.liveRegion.textContent = message; });
+  }
+  
+  /** Update visual focus */
   updateFocus(element) {
-    // Remove focus from all elements
-    this.state.selection?.each(function() {
-      this.classList.remove('sonify-focused');
-    });
-    
-    // Add focus to current element
-    if (element) {
-      element.classList.add('sonify-focused');
-      element.focus();
-    }
+    this.selection?.each(function() { this.classList.remove('sonify-focused'); });
+    element?.classList.add('sonify-focused');
+    element?.focus();
   }
   
-  /**
-   * Check if currently playing
-   */
-  isPlaying() {
-    return this.state.playing && !this.state.paused;
+  /** Clear focus */
+  clearFocus() {
+    this.selection?.each(function() { this.classList.remove('sonify-focused'); });
   }
   
-  /**
-   * Get current index
-   */
-  currentIndex() {
-    return this.state.currentIndex;
-  }
-  
-  /**
-   * Calculate total duration
-   */
-  duration() {
-    const { data } = this.state;
-    const noteDuration = this.options.duration || 200;
-    const gap = this.options.gap || 50;
-    
-    return data.length * (noteDuration + gap);
-  }
-  
-  /**
-   * Add event listener
-   */
-  on(event, callback) {
-    if (!this.eventListeners.has(event)) {
-      this.eventListeners.set(event, []);
-    }
-    this.eventListeners.get(event).push(callback);
-    return this;
-  }
-  
-  /**
-   * Emit event
-   */
-  emit(event, ...args) {
-    const listeners = this.eventListeners.get(event) || [];
-    listeners.forEach(callback => callback(...args));
-  }
-  
-  /**
-   * Utility: wait for a duration
-   */
+  /** Utility: wait ms */
   wait(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(r => setTimeout(r, ms));
   }
   
-  /**
-   * Clean up all resources
-   */
+  /** Clean up */
   destroy() {
     this.stop();
-    this.audioEngine.destroy();
-    this.accessibility.destroy();
+    this.audio.destroy();
     
-    // Remove keyboard handlers
-    if (this._keydownHandler) {
-      this.state.selection?.each(function() {
-        this.removeEventListener('keydown', this._keydownHandler);
+    if (this._keyHandler) {
+      const handler = this._keyHandler;
+      this.selection?.each(function() {
+        this.removeEventListener('keydown', handler);
       });
     }
     
-    // Remove focus classes
-    this.state.selection?.each(function() {
-      this.classList.remove('sonify-focused');
-      this.removeAttribute('tabindex');
-    });
-    
-    this.eventListeners.clear();
-    this.state = {
-      playing: false,
-      paused: false,
-      currentIndex: -1,
-      data: [],
-      selection: null
-    };
+    this.clearFocus();
+    this.liveRegion?.remove();
   }
 }
 
 export default SonificationEngine;
-
