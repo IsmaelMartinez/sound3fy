@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sound3fy Examples</title>
+  <style>
+    :root {
+      --bg: #0a0a12;
+      --card: #12121f;
+      --accent: #8b5cf6;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: #1e1e32;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .container { max-width: 600px; text-align: center; }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .tagline { color: var(--muted); margin-bottom: 2rem; }
+    .examples {
+      display: grid;
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .example {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    .example:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .example h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+    .example p { color: var(--muted); font-size: 0.9rem; }
+    .links { margin-top: 2rem; }
+    .links a {
+      color: var(--accent);
+      text-decoration: none;
+      margin: 0 1rem;
+    }
+    .links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔊 sound3fy</h1>
+    <p class="tagline">Make D3.js visualizations accessible through sound</p>
+    
+    <div class="examples">
+      <a href="basic/" class="example">
+        <h2>📊 Bar Chart</h2>
+        <p>Discrete sonification with musical scales, keyboard navigation, and hover-to-hear</p>
+      </a>
+      
+      <a href="line-chart/" class="example">
+        <h2>📈 Line Chart</h2>
+        <p>Continuous frequency sweep to hear trends, with multi-series support</p>
+      </a>
+    </div>
+    
+    <div class="links">
+      <a href="https://github.com/IsmaelMartinez/sound3fy">GitHub</a>
+      <a href="https://github.com/IsmaelMartinez/sound3fy#readme">Documentation</a>
+    </div>
+  </div>
+</body>
+</html>
+

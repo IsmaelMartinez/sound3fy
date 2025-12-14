@@ -1,191 +1,70 @@
 /**
  * sound3fy - Make D3.js visualizations accessible through sound
- * 
- * @example
- * // Basic usage
- * d3.selectAll("rect").data(data).sonify();
- * 
- * @example
- * // With options
- * d3.selectAll("rect").data(data).sonify({
- *   pitch: { field: "value", scale: "pentatonic" },
- *   duration: 250,
- *   markers: { start: true, end: true }
- * });
  */
 
 import { AudioEngine } from './core/AudioEngine.js';
 import { DataMapper } from './core/DataMapper.js';
 import { SonificationEngine } from './core/SonificationEngine.js';
 
-/** Default configuration */
 const DEFAULTS = {
-  // Pitch mapping
-  pitch: {
-    field: null,           // Data field or accessor function
-    range: [220, 880],     // Frequency range [min, max] Hz
-    scale: 'pentatonic'    // Musical scale: pentatonic, major, minor, chromatic, blues, continuous
-  },
-  
-  // Volume mapping (optional)
-  volume: {
-    field: null,
-    range: [0.4, 0.7]
-  },
-  
-  // Stereo panning
-  pan: {
-    range: [-0.7, 0.7]     // Left to right spread
-  },
-  
-  // Timing
-  duration: 200,           // Note duration in ms
-  gap: 50,                 // Gap between notes in ms
-  
-  // Sound envelope
-  envelope: {
-    attack: 0.02,
-    decay: 0.05,
-    sustain: 0.7,
-    release: 0.1
-  },
-  
-  // Orientation markers
-  markers: {
-    start: true,           // Play sound at start
-    end: true              // Play sound at end
-  },
-  
-  // Accessibility features
-  accessibility: {
-    keyboard: true,        // Enable keyboard navigation
-    announce: true,        // Screen reader announcements
-    focus: true,           // Visual focus indicator
-    hover: true            // Sonify on hover
-  },
-  
-  // Playback
+  pitch: { field: null, range: [220, 880], scale: 'pentatonic' },
+  volume: { field: null, range: [0.4, 0.7] },
+  pan: { range: [-0.7, 0.7] },
+  duration: 200,
+  gap: 50,
+  mode: 'discrete',
+  envelope: { attack: 0.02, decay: 0.05, sustain: 0.7, release: 0.1 },
+  markers: { start: true, end: true },
+  accessibility: { keyboard: true, announce: true, focus: true, hover: true },
   autoPlay: false
 };
 
-/**
- * Sonify a D3 selection
- * @param {Object} options - Configuration options
- * @returns {SonificationEngine} Controller with play/pause/stop/next/previous methods
- */
+/** Sonify a D3 selection */
 function sonify(options = {}) {
-  const selection = this;
-  const config = mergeDeep(DEFAULTS, normalize(options));
-  
-  // Extract data from D3 selection
   const data = [];
-  selection.each(function(d, i) {
-    data.push({ datum: d, index: i, element: this });
-  });
+  this.each(function(d, i) { data.push({ datum: d, index: i, element: this }); });
   
-  if (data.length === 0) {
-    console.warn('sound3fy: No data bound to selection');
+  if (!data.length) {
+    console.warn('sound3fy: No data');
     return nullEngine();
   }
   
-  // Create and bind engine
+  const config = merge(DEFAULTS, normalize(options));
   const engine = new SonificationEngine(config);
-  engine.bind(selection, data);
+  engine.bind(this, data);
   
-  if (config.autoPlay) {
-    // Delay autoPlay to ensure DOM is ready
-    setTimeout(() => engine.play(), 100);
-  }
+  if (config.autoPlay) setTimeout(() => engine.play(), 100);
   
   return engine;
 }
 
-/** Normalize shorthand options */
-function normalize(options) {
-  const normalized = { ...options };
-  
-  // pitch: "fieldName" → pitch: { field: "fieldName" }
-  if (typeof options.pitch === 'string' || typeof options.pitch === 'function') {
-    normalized.pitch = { field: options.pitch };
-  }
-  
-  // volume: "fieldName" → volume: { field: "fieldName" }
-  if (typeof options.volume === 'string' || typeof options.volume === 'function') {
-    normalized.volume = { field: options.volume };
-  }
-  
-  // timbre: "sine" → timbre: { type: "sine" }
-  if (typeof options.timbre === 'string') {
-    normalized.timbre = { type: options.timbre };
-  }
-  
-  return normalized;
+function normalize(opts) {
+  const o = { ...opts };
+  if (typeof o.pitch === 'string' || typeof o.pitch === 'function') o.pitch = { field: o.pitch };
+  if (typeof o.volume === 'string' || typeof o.volume === 'function') o.volume = { field: o.volume };
+  return o;
 }
 
-/** Deep merge objects */
-function mergeDeep(target, source) {
-  const output = { ...target };
-  
-  for (const key in source) {
-    if (source[key] === undefined) continue;
-    
-    if (isObject(source[key]) && isObject(target[key])) {
-      output[key] = mergeDeep(target[key], source[key]);
-    } else {
-      output[key] = source[key];
-    }
+function merge(a, b) {
+  const r = { ...a };
+  for (const k in b) {
+    if (b[k] === undefined) continue;
+    r[k] = (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k]) && a[k])
+      ? merge(a[k], b[k])
+      : b[k];
   }
-  
-  return output;
+  return r;
 }
 
-function isObject(item) {
-  return item && typeof item === 'object' && !Array.isArray(item);
-}
-
-/** Null engine for empty data */
 function nullEngine() {
-  const noop = () => nullEngine;
-  return {
-    play: noop, pause: noop, stop: noop, toggle: noop,
-    next: noop, previous: noop, first: noop, last: noop, seek: noop,
-    setSpeed: noop, destroy: noop,
-    isPlaying: () => false, isPaused: () => false,
-    currentIndex: () => -1, length: () => 0
-  };
+  const n = () => nullEngine();
+  return { play: n, pause: n, stop: n, toggle: n, next: n, previous: n, first: n, last: n, setSpeed: n, setMode: n, destroy: () => {}, isPlaying: () => false, length: () => 0 };
 }
 
-// ─────────────────────────────────────────────────────────────
-// AUTO-REGISTER D3 PLUGIN
-// ─────────────────────────────────────────────────────────────
-
-if (typeof window !== 'undefined') {
-  // Wait for D3 to be available
-  const registerPlugin = () => {
-    if (window.d3?.selection?.prototype) {
-      window.d3.selection.prototype.sonify = sonify;
-    }
-  };
-  
-  // Try immediately
-  registerPlugin();
-  
-  // Also try after DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', registerPlugin);
-  }
+// Auto-register D3 plugin
+if (typeof window !== 'undefined' && window.d3?.selection?.prototype) {
+  window.d3.selection.prototype.sonify = sonify;
 }
 
-// ─────────────────────────────────────────────────────────────
-// EXPORTS
-// ─────────────────────────────────────────────────────────────
-
-export {
-  sonify,
-  AudioEngine,
-  DataMapper,
-  SonificationEngine,
-  DEFAULTS
-};
-
+export { sonify, AudioEngine, DataMapper, SonificationEngine, DEFAULTS };
 export default sonify;

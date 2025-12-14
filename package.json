@@ -12,7 +12,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --run",
+    "test:watch": "vitest",
     "test:coverage": "vitest --coverage",
     "lint": "eslint src/**/*.js",
     "docs": "typedoc src/index.js"
@@ -46,8 +47,8 @@
   "devDependencies": {
     "d3": "^7.8.5",
     "eslint": "^8.57.0",
+    "jsdom": "^27.3.0",
     "vite": "^5.4.0",
     "vitest": "^2.0.0"
   }
 }
-
