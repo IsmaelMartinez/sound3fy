@@ -3,87 +3,949 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>sound3fy Examples</title>
+  <title>sound3fy - Accessible Data Sonification</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  
   <style>
     :root {
-      --bg: #0a0a12;
-      --card: #12121f;
-      --accent: #8b5cf6;
+      --bg: #0a0a0f;
+      --bg-card: #14141f;
+      --bg-code: #0d0d14;
+      --accent-bar: #8b5cf6;
+      --accent-bar-light: #a78bfa;
+      --accent-line: #10b981;
+      --accent-line-light: #34d399;
+      --accent-secondary: #f472b6;
       --text: #e2e8f0;
-      --muted: #94a3b8;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
       --border: #1e1e32;
+      --success: #10b981;
     }
+    
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: 'Space Grotesk', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
       padding: 2rem;
     }
-    .container { max-width: 600px; text-align: center; }
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, #fff, var(--accent));
+    
+    /* Header */
+    header {
+      text-align: center;
+      padding: 3rem 0 2rem;
+    }
+    
+    .logo {
+      font-size: 3.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #fff 20%, var(--accent-bar-light) 50%, var(--accent-line-light) 80%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .tagline { color: var(--muted); margin-bottom: 2rem; }
-    .examples {
-      display: grid;
-      gap: 1rem;
+    
+    .tagline {
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      font-size: 1.15rem;
+    }
+    
+    /* Chart Type Tabs */
+    .chart-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
       margin: 2rem 0;
     }
-    .example {
-      background: var(--card);
+    
+    .chart-tab {
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      border: 2px solid var(--border);
+      border-radius: 0.5rem;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .chart-tab:hover {
+      border-color: var(--text-dim);
+      color: var(--text);
+    }
+    
+    .chart-tab.active {
+      background: var(--accent-bar);
+      border-color: var(--accent-bar);
+      color: white;
+    }
+    
+    .chart-tab[data-chart="line"].active {
+      background: var(--accent-line);
+      border-color: var(--accent-line);
+    }
+    
+    /* Cards */
+    .card {
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 1rem;
       padding: 1.5rem;
-      text-decoration: none;
+      margin-bottom: 1.5rem;
+    }
+    
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    /* Chart Container */
+    .chart-container { display: none; }
+    .chart-container.active { display: block; }
+    
+    #chart { width: 100%; height: 320px; }
+    
+    /* Bar Chart Styles */
+    .bar {
+      fill: var(--accent-bar);
+      cursor: pointer;
+      transition: fill 0.15s ease;
+    }
+    
+    .bar:hover, .bar:focus, .bar.sonify-focused {
+      fill: var(--accent-bar-light);
+      outline: none;
+    }
+    
+    .bar.sonify-focused {
+      filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));
+    }
+    
+    /* Line Chart Styles */
+    .line { fill: none; stroke-width: 3; stroke-linecap: round; }
+    .line-primary { stroke: var(--accent-line); }
+    .line-secondary { stroke: var(--accent-secondary); }
+    
+    .dot { cursor: pointer; transition: r 0.15s ease; }
+    .dot-primary { fill: var(--accent-line); }
+    .dot-secondary { fill: var(--accent-secondary); }
+    
+    .dot:hover, .dot:focus, .dot.sonify-focused { r: 8; outline: none; }
+    .dot.sonify-focused { filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5)); }
+    
+    .axis text { fill: var(--text-muted); font-size: 11px; }
+    .axis path, .axis line { stroke: var(--border); }
+    .grid line { stroke: var(--border); stroke-opacity: 0.3; }
+    
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .legend-item { display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .legend-dot.primary { background: var(--accent-line); }
+    .legend-dot.secondary { background: var(--accent-secondary); }
+    
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+    
+    .btn {
+      background: var(--accent-bar);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 0.5rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+    }
+    
+    .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn:focus { outline: 2px solid var(--accent-bar-light); outline-offset: 2px; }
+    
+    .btn--ghost { background: transparent; border: 1px solid var(--border); }
+    .btn--ghost:hover { background: var(--border); }
+    
+    .btn--line { background: var(--accent-line); }
+    .btn--line:focus { outline-color: var(--accent-line-light); }
+    
+    .btn--secondary { background: var(--accent-secondary); }
+    
+    .status {
+      text-align: center;
+      padding: 0.75rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      min-height: 2.5rem;
+      background: rgba(0,0,0,0.3);
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .status.playing { color: var(--success); }
+    
+    /* Options */
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+    
+    .option-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+    
+    .option-group select,
+    .option-group input[type="range"] {
+      width: 100%;
+      padding: 0.5rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.4rem;
       color: var(--text);
-      transition: all 0.2s;
+      font-family: inherit;
+      font-size: 0.9rem;
     }
-    .example:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
+    
+    .option-group select:focus { outline: 2px solid var(--accent-bar); }
+    
+    .range-value { font-size: 0.8rem; color: var(--accent-bar-light); float: right; }
+    
+    /* Mode Toggle */
+    .mode-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
     }
-    .example h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
-    .example p { color: var(--muted); font-size: 0.9rem; }
-    .links { margin-top: 2rem; }
-    .links a {
-      color: var(--accent);
+    
+    .mode-btn {
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.4rem;
+      color: var(--text-muted);
+      font-family: inherit;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.15s ease;
+    }
+    
+    .mode-btn.active {
+      background: var(--accent-line);
+      border-color: var(--accent-line);
+      color: white;
+    }
+    
+    /* Code Block */
+    .code-card {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .code-title {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.3rem;
+      font-family: inherit;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    
+    .copy-btn:hover { background: var(--border); color: var(--text); }
+    .copy-btn.copied { background: var(--success); border-color: var(--success); color: white; }
+    
+    .code-content {
+      padding: 1rem;
+      overflow-x: auto;
+    }
+    
+    pre {
+      margin: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    
+    .code-comment { color: var(--text-dim); }
+    .code-keyword { color: var(--accent-secondary); }
+    .code-string { color: var(--accent-line); }
+    .code-number { color: var(--accent-bar-light); }
+    .code-function { color: #60a5fa; }
+    .code-property { color: #fbbf24; }
+    
+    /* Keyboard Help */
+    .keyboard-help {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.5rem;
+    }
+    
+    .key-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    
+    kbd {
+      background: var(--bg);
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      border: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      min-width: 1.6rem;
+      text-align: center;
+    }
+    
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+    
+    footer a {
+      color: var(--accent-bar-light);
       text-decoration: none;
-      margin: 0 1rem;
     }
-    .links a:hover { text-decoration: underline; }
+    
+    footer a:hover { text-decoration: underline; }
+    
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container { padding: 1rem; }
+      .logo { font-size: 2.5rem; }
+      .chart-tabs { flex-direction: column; }
+      .controls { gap: 0.5rem; }
+      .btn { padding: 0.5rem 0.8rem; font-size: 0.85rem; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🔊 sound3fy</h1>
-    <p class="tagline">Make D3.js visualizations accessible through sound</p>
+    <header>
+      <h1 class="logo">sound3fy</h1>
+      <p class="tagline">Making data visualizations accessible through sound</p>
+    </header>
     
-    <div class="examples">
-      <a href="basic/" class="example">
-        <h2>📊 Bar Chart</h2>
-        <p>Discrete sonification with musical scales, keyboard navigation, and hover-to-hear</p>
-      </a>
+    <!-- Chart Type Selector -->
+    <div class="chart-tabs" role="tablist" aria-label="Chart type">
+      <button class="chart-tab active" data-chart="bar" role="tab" aria-selected="true">
+        📊 Bar Chart
+      </button>
+      <button class="chart-tab" data-chart="line" role="tab" aria-selected="false">
+        📈 Line Chart
+      </button>
+    </div>
+    
+    <main>
+      <!-- BAR CHART -->
+      <div class="chart-container active" id="bar-container" role="tabpanel">
+        <div class="card">
+          <h2 class="card-title">📊 Monthly Sales 2024</h2>
+          <div id="bar-chart" role="img" aria-label="Bar chart showing monthly sales"></div>
+          
+          <div class="controls" role="group" aria-label="Playback controls">
+            <button class="btn" id="bar-playBtn">▶ Play</button>
+            <button class="btn btn--ghost" id="bar-pauseBtn">⏸ Pause</button>
+            <button class="btn btn--ghost" id="bar-stopBtn">⏹ Stop</button>
+            <button class="btn btn--ghost" id="bar-prevBtn">⏮</button>
+            <button class="btn btn--ghost" id="bar-nextBtn">⏭</button>
+          </div>
+          
+          <div class="status" id="bar-status" role="status" aria-live="polite">
+            Press Play or hover over bars to hear the data
+          </div>
+        </div>
+        
+        <!-- Bar Chart Code Example -->
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-title">💻 Code Example</span>
+            <button class="copy-btn" data-target="bar-code">📋 Copy</button>
+          </div>
+          <div class="code-content">
+            <pre id="bar-code"><span class="code-comment">// Create your D3 bar chart as usual</span>
+<span class="code-keyword">const</span> bars = svg.<span class="code-function">selectAll</span>(<span class="code-string">'.bar'</span>)
+  .<span class="code-function">data</span>(data)
+  .<span class="code-function">enter</span>()
+  .<span class="code-function">append</span>(<span class="code-string">'rect'</span>)
+  .<span class="code-function">attr</span>(<span class="code-string">'class'</span>, <span class="code-string">'bar'</span>)
+  .<span class="code-function">attr</span>(<span class="code-string">'x'</span>, d => x(d.month))
+  .<span class="code-function">attr</span>(<span class="code-string">'y'</span>, d => y(d.value))
+  .<span class="code-function">attr</span>(<span class="code-string">'height'</span>, d => height - y(d.value));
+
+<span class="code-comment">// Add sonification with one line!</span>
+<span class="code-keyword">const</span> sonification = bars.<span class="code-function">sonify</span>({
+  <span class="code-property">pitch</span>: {
+    <span class="code-property">field</span>: <span class="code-string">'value'</span>,      <span class="code-comment">// Map 'value' to pitch</span>
+    <span class="code-property">range</span>: [<span class="code-number">220</span>, <span class="code-number">880</span>],   <span class="code-comment">// Frequency range (Hz)</span>
+    <span class="code-property">scale</span>: <span class="code-string">'pentatonic'</span>  <span class="code-comment">// Musical scale</span>
+  },
+  <span class="code-property">duration</span>: <span class="code-number">200</span>,          <span class="code-comment">// Note duration (ms)</span>
+  <span class="code-property">gap</span>: <span class="code-number">50</span>,                <span class="code-comment">// Gap between notes (ms)</span>
+  <span class="code-property">mode</span>: <span class="code-string">'discrete'</span>        <span class="code-comment">// Individual notes</span>
+});
+
+<span class="code-comment">// Control playback</span>
+sonification.<span class="code-function">play</span>();    <span class="code-comment">// Start playing</span>
+sonification.<span class="code-function">pause</span>();   <span class="code-comment">// Pause</span>
+sonification.<span class="code-function">stop</span>();    <span class="code-comment">// Stop and reset</span></pre>
+          </div>
+        </div>
+      </div>
       
-      <a href="line-chart/" class="example">
-        <h2>📈 Line Chart</h2>
-        <p>Continuous frequency sweep to hear trends, with multi-series support</p>
-      </a>
-    </div>
+      <!-- LINE CHART -->
+      <div class="chart-container" id="line-container" role="tabpanel">
+        <div class="card">
+          <h2 class="card-title">📈 Revenue vs Expenses 2024</h2>
+          
+          <div class="mode-toggle" role="group" aria-label="Playback mode">
+            <button class="mode-btn active" data-mode="continuous">🎵 Continuous</button>
+            <button class="mode-btn" data-mode="discrete">🔘 Discrete</button>
+          </div>
+          
+          <div id="line-chart" role="img" aria-label="Line chart comparing revenue and expenses"></div>
+          
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot primary"></div><span>Revenue</span></div>
+            <div class="legend-item"><div class="legend-dot secondary"></div><span>Expenses</span></div>
+          </div>
+          
+          <div class="controls" role="group" aria-label="Playback controls">
+            <button class="btn btn--line" id="line-playRevenue">▶ Play Revenue</button>
+            <button class="btn btn--secondary" id="line-playExpenses">▶ Play Expenses</button>
+            <button class="btn btn--ghost" id="line-pauseBtn">⏸ Pause</button>
+            <button class="btn btn--ghost" id="line-stopBtn">⏹ Stop</button>
+          </div>
+          
+          <div class="status" id="line-status" role="status" aria-live="polite">
+            Click Play or hover over data points
+          </div>
+        </div>
+        
+        <!-- Line Chart Code Example -->
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-title">💻 Code Example</span>
+            <button class="copy-btn" data-target="line-code">📋 Copy</button>
+          </div>
+          <div class="code-content">
+            <pre id="line-code"><span class="code-comment">// Create your D3 line chart as usual</span>
+<span class="code-keyword">const</span> dots = svg.<span class="code-function">selectAll</span>(<span class="code-string">'.dot'</span>)
+  .<span class="code-function">data</span>(data)
+  .<span class="code-function">enter</span>()
+  .<span class="code-function">append</span>(<span class="code-string">'circle'</span>)
+  .<span class="code-function">attr</span>(<span class="code-string">'class'</span>, <span class="code-string">'dot'</span>)
+  .<span class="code-function">attr</span>(<span class="code-string">'cx'</span>, d => x(d.month))
+  .<span class="code-function">attr</span>(<span class="code-string">'cy'</span>, d => y(d.value))
+  .<span class="code-function">attr</span>(<span class="code-string">'r'</span>, <span class="code-number">5</span>);
+
+<span class="code-comment">// Add continuous sonification for smooth trend sweep</span>
+<span class="code-keyword">const</span> sonification = dots.<span class="code-function">sonify</span>({
+  <span class="code-property">pitch</span>: {
+    <span class="code-property">field</span>: <span class="code-string">'value'</span>,
+    <span class="code-property">range</span>: [<span class="code-number">220</span>, <span class="code-number">880</span>],
+    <span class="code-property">scale</span>: <span class="code-string">'pentatonic'</span>
+  },
+  <span class="code-property">duration</span>: <span class="code-number">200</span>,
+  <span class="code-property">gap</span>: <span class="code-number">30</span>,
+  <span class="code-property">mode</span>: <span class="code-string">'continuous'</span>  <span class="code-comment">// Smooth frequency sweep!</span>
+});
+
+<span class="code-comment">// Continuous mode sweeps through frequencies</span>
+<span class="code-comment">// Perfect for hearing trends in line charts</span>
+sonification.<span class="code-function">play</span>();
+
+<span class="code-comment">// Toggle between modes</span>
+sonification.<span class="code-function">setMode</span>(<span class="code-string">'discrete'</span>);  <span class="code-comment">// Individual notes</span>
+sonification.<span class="code-function">setMode</span>(<span class="code-string">'continuous'</span>); <span class="code-comment">// Smooth sweep</span></pre>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Options (shared) -->
+      <div class="card">
+        <h2 class="card-title">⚙️ Sonification Options</h2>
+        <div class="options">
+          <div class="option-group">
+            <label for="scaleSelect">Musical Scale</label>
+            <select id="scaleSelect">
+              <option value="pentatonic" selected>Pentatonic (pleasant)</option>
+              <option value="major">Major (bright)</option>
+              <option value="minor">Minor (serious)</option>
+              <option value="blues">Blues</option>
+              <option value="chromatic">Chromatic (all notes)</option>
+              <option value="continuous">Continuous (no scale)</option>
+            </select>
+          </div>
+          
+          <div class="option-group">
+            <label for="instrumentSelect">Instrument</label>
+            <select id="instrumentSelect">
+              <option value="sine" selected>Sine (smooth)</option>
+              <option value="triangle">Triangle (mellow)</option>
+              <option value="square">Square (retro)</option>
+              <option value="sawtooth">Sawtooth (bright)</option>
+            </select>
+          </div>
+          
+          <div class="option-group">
+            <label for="speedSlider">Speed <span class="range-value" id="speedValue">1.0x</span></label>
+            <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1">
+          </div>
+          
+          <div class="option-group">
+            <label for="durationSlider">Duration <span class="range-value" id="durationValue">200ms</span></label>
+            <input type="range" id="durationSlider" min="100" max="500" step="50" value="200">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Keyboard Shortcuts -->
+      <div class="card">
+        <h2 class="card-title">⌨️ Keyboard Shortcuts</h2>
+        <div class="keyboard-help">
+          <div class="key-item"><kbd>Space</kbd> Play/Pause</div>
+          <div class="key-item"><kbd>←</kbd><kbd>→</kbd> Navigate</div>
+          <div class="key-item"><kbd>Home</kbd> First</div>
+          <div class="key-item"><kbd>End</kbd> Last</div>
+          <div class="key-item"><kbd>+</kbd><kbd>-</kbd> Speed</div>
+          <div class="key-item"><kbd>M</kbd> Toggle mode</div>
+          <div class="key-item"><kbd>Esc</kbd> Stop</div>
+        </div>
+      </div>
+    </main>
     
-    <div class="links">
-      <a href="https://github.com/IsmaelMartinez/sound3fy">GitHub</a>
-      <a href="https://github.com/IsmaelMartinez/sound3fy#readme">Documentation</a>
-    </div>
+    <footer>
+      <p>
+        <a href="https://github.com/IsmaelMartinez/sound3fy">GitHub</a> · 
+        <a href="https://github.com/IsmaelMartinez/sound3fy/blob/master/docs/RESEARCH.md">Research</a> · 
+        <a href="https://github.com/IsmaelMartinez/sound3fy/tree/master/docs/adr">Architecture Decisions</a>
+      </p>
+    </footer>
   </div>
+  
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script type="module">
+    import { SonificationEngine, DataMapper, AudioEngine } from './src/index.js';
+    
+    // Register D3 plugin
+    d3.selection.prototype.sonify = function(options = {}) {
+      const data = [];
+      this.each(function(d, i) {
+        data.push({ datum: d, index: i, element: this });
+      });
+      if (data.length === 0) return null;
+      const engine = new SonificationEngine(options);
+      engine.bind(this, data);
+      return engine;
+    };
+    
+    // ═══════════════════════════════════════════════════════════════
+    // DATA
+    // ═══════════════════════════════════════════════════════════════
+    
+    const barData = [
+      { month: 'Jan', value: 4500 }, { month: 'Feb', value: 5200 },
+      { month: 'Mar', value: 4800 }, { month: 'Apr', value: 6100 },
+      { month: 'May', value: 5800 }, { month: 'Jun', value: 7200 },
+      { month: 'Jul', value: 8500 }, { month: 'Aug', value: 7800 },
+      { month: 'Sep', value: 6900 }, { month: 'Oct', value: 7500 },
+      { month: 'Nov', value: 8200 }, { month: 'Dec', value: 9500 }
+    ];
+    
+    const revenueData = [
+      { month: 'Jan', value: 42000 }, { month: 'Feb', value: 48000 },
+      { month: 'Mar', value: 45000 }, { month: 'Apr', value: 52000 },
+      { month: 'May', value: 58000 }, { month: 'Jun', value: 62000 },
+      { month: 'Jul', value: 68000 }, { month: 'Aug', value: 72000 },
+      { month: 'Sep', value: 65000 }, { month: 'Oct', value: 70000 },
+      { month: 'Nov', value: 78000 }, { month: 'Dec', value: 85000 }
+    ];
+    
+    const expensesData = [
+      { month: 'Jan', value: 38000 }, { month: 'Feb', value: 40000 },
+      { month: 'Mar', value: 42000 }, { month: 'Apr', value: 44000 },
+      { month: 'May', value: 46000 }, { month: 'Jun', value: 48000 },
+      { month: 'Jul', value: 50000 }, { month: 'Aug', value: 52000 },
+      { month: 'Sep', value: 51000 }, { month: 'Oct', value: 53000 },
+      { month: 'Nov', value: 55000 }, { month: 'Dec', value: 58000 }
+    ];
+    
+    const months = barData.map(d => d.month);
+    
+    // ═══════════════════════════════════════════════════════════════
+    // BAR CHART
+    // ═══════════════════════════════════════════════════════════════
+    
+    const barContainer = document.getElementById('bar-chart');
+    const barMargin = { top: 20, right: 20, bottom: 40, left: 60 };
+    const barWidth = barContainer.clientWidth - barMargin.left - barMargin.right;
+    const barHeight = 320 - barMargin.top - barMargin.bottom;
+    
+    const barSvg = d3.select('#bar-chart')
+      .append('svg')
+      .attr('width', barWidth + barMargin.left + barMargin.right)
+      .attr('height', barHeight + barMargin.top + barMargin.bottom)
+      .append('g')
+      .attr('transform', `translate(${barMargin.left},${barMargin.top})`);
+    
+    const xBar = d3.scaleBand().domain(months).range([0, barWidth]).padding(0.2);
+    const yBar = d3.scaleLinear().domain([0, d3.max(barData, d => d.value) * 1.1]).range([barHeight, 0]);
+    
+    barSvg.append('g').attr('class', 'grid').call(d3.axisLeft(yBar).tickSize(-barWidth).tickFormat(''));
+    barSvg.append('g').attr('class', 'axis').attr('transform', `translate(0,${barHeight})`).call(d3.axisBottom(xBar));
+    barSvg.append('g').attr('class', 'axis').call(d3.axisLeft(yBar).ticks(5).tickFormat(d => `$${d/1000}k`));
+    
+    const bars = barSvg.selectAll('.bar')
+      .data(barData)
+      .enter()
+      .append('rect')
+      .attr('class', 'bar')
+      .attr('x', d => xBar(d.month))
+      .attr('y', d => yBar(d.value))
+      .attr('width', xBar.bandwidth())
+      .attr('height', d => barHeight - yBar(d.value))
+      .attr('aria-label', d => `${d.month}: $${d.value.toLocaleString()}`);
+    
+    // ═══════════════════════════════════════════════════════════════
+    // LINE CHART
+    // ═══════════════════════════════════════════════════════════════
+    
+    const lineContainer = document.getElementById('line-chart');
+    const lineMargin = { top: 20, right: 30, bottom: 40, left: 60 };
+    const lineWidth = lineContainer.clientWidth - lineMargin.left - lineMargin.right;
+    const lineHeight = 320 - lineMargin.top - lineMargin.bottom;
+    
+    const lineSvg = d3.select('#line-chart')
+      .append('svg')
+      .attr('width', lineWidth + lineMargin.left + lineMargin.right)
+      .attr('height', lineHeight + lineMargin.top + lineMargin.bottom)
+      .append('g')
+      .attr('transform', `translate(${lineMargin.left},${lineMargin.top})`);
+    
+    const xLine = d3.scalePoint().domain(months).range([0, lineWidth]);
+    const yLine = d3.scaleLinear().domain([0, 100000]).range([lineHeight, 0]);
+    
+    lineSvg.append('g').attr('class', 'grid').call(d3.axisLeft(yLine).tickSize(-lineWidth).tickFormat(''));
+    lineSvg.append('g').attr('class', 'axis').attr('transform', `translate(0,${lineHeight})`).call(d3.axisBottom(xLine));
+    lineSvg.append('g').attr('class', 'axis').call(d3.axisLeft(yLine).ticks(5).tickFormat(d => `$${d/1000}k`));
+    
+    const line = d3.line().x(d => xLine(d.month)).y(d => yLine(d.value)).curve(d3.curveMonotoneX);
+    
+    lineSvg.append('path').datum(revenueData).attr('class', 'line line-primary').attr('d', line);
+    lineSvg.append('path').datum(expensesData).attr('class', 'line line-secondary').attr('d', line);
+    
+    const revenueDots = lineSvg.selectAll('.dot-primary')
+      .data(revenueData).enter().append('circle')
+      .attr('class', 'dot dot-primary')
+      .attr('cx', d => xLine(d.month)).attr('cy', d => yLine(d.value)).attr('r', 5)
+      .attr('aria-label', d => `Revenue ${d.month}: $${d.value.toLocaleString()}`);
+    
+    const expensesDots = lineSvg.selectAll('.dot-secondary')
+      .data(expensesData).enter().append('circle')
+      .attr('class', 'dot dot-secondary')
+      .attr('cx', d => xLine(d.month)).attr('cy', d => yLine(d.value)).attr('r', 5)
+      .attr('aria-label', d => `Expenses ${d.month}: $${d.value.toLocaleString()}`);
+    
+    // ═══════════════════════════════════════════════════════════════
+    // SONIFICATION
+    // ═══════════════════════════════════════════════════════════════
+    
+    let barSonification = null;
+    let revenueSonification = null;
+    let expensesSonification = null;
+    let currentMode = 'continuous';
+    
+    function getOptions() {
+      return {
+        scale: document.getElementById('scaleSelect').value,
+        instrument: document.getElementById('instrumentSelect').value,
+        duration: parseInt(document.getElementById('durationSlider').value),
+        speed: parseFloat(document.getElementById('speedSlider').value)
+      };
+    }
+    
+    function createBarSonification() {
+      if (barSonification) barSonification.destroy();
+      const opts = getOptions();
+      
+      barSonification = bars.sonify({
+        pitch: { field: 'value', range: [220, 880], scale: opts.scale },
+        duration: opts.duration,
+        gap: 50,
+        instrument: opts.instrument,
+        mode: 'discrete',
+        markers: { start: true, end: true }
+      });
+      
+      barSonification.setSpeed(opts.speed);
+      return barSonification;
+    }
+    
+    function createLineSonifications() {
+      if (revenueSonification) revenueSonification.destroy();
+      if (expensesSonification) expensesSonification.destroy();
+      
+      const opts = getOptions();
+      const commonOptions = {
+        pitch: { field: 'value', range: [220, 880], scale: opts.scale },
+        duration: opts.duration,
+        gap: 30,
+        instrument: opts.instrument,
+        mode: currentMode,
+        markers: { start: true, end: true }
+      };
+      
+      revenueSonification = revenueDots.sonify(commonOptions);
+      expensesSonification = expensesDots.sonify({
+        ...commonOptions,
+        pitch: { field: 'value', range: [180, 720], scale: opts.scale === 'pentatonic' ? 'minor' : opts.scale }
+      });
+      
+      revenueSonification.setSpeed(opts.speed);
+      expensesSonification.setSpeed(opts.speed);
+    }
+    
+    // Initial creation
+    createBarSonification();
+    createLineSonifications();
+    
+    // ═══════════════════════════════════════════════════════════════
+    // UI HANDLERS
+    // ═══════════════════════════════════════════════════════════════
+    
+    const barStatus = document.getElementById('bar-status');
+    const lineStatus = document.getElementById('line-status');
+    
+    function updateStatus(el, msg, playing = false) {
+      el.textContent = msg;
+      el.classList.toggle('playing', playing);
+    }
+    
+    // Chart tabs
+    document.querySelectorAll('.chart-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.chart-tab').forEach(t => {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+        
+        document.querySelectorAll('.chart-container').forEach(c => c.classList.remove('active'));
+        document.getElementById(`${tab.dataset.chart}-container`).classList.add('active');
+        
+        // Stop any playing
+        barSonification?.stop();
+        revenueSonification?.stop();
+        expensesSonification?.stop();
+      });
+    });
+    
+    // Bar chart controls
+    document.getElementById('bar-playBtn').addEventListener('click', () => {
+      if (!barSonification) createBarSonification();
+      barSonification.play();
+      updateStatus(barStatus, 'Playing...', true);
+    });
+    
+    document.getElementById('bar-pauseBtn').addEventListener('click', () => {
+      barSonification?.pause();
+      updateStatus(barStatus, 'Paused');
+    });
+    
+    document.getElementById('bar-stopBtn').addEventListener('click', () => {
+      barSonification?.stop();
+      updateStatus(barStatus, 'Stopped');
+    });
+    
+    document.getElementById('bar-prevBtn').addEventListener('click', () => barSonification?.previous());
+    document.getElementById('bar-nextBtn').addEventListener('click', () => barSonification?.next());
+    
+    // Line chart controls
+    document.getElementById('line-playRevenue').addEventListener('click', () => {
+      expensesSonification?.stop();
+      revenueSonification?.play();
+      updateStatus(lineStatus, 'Playing Revenue...', true);
+    });
+    
+    document.getElementById('line-playExpenses').addEventListener('click', () => {
+      revenueSonification?.stop();
+      expensesSonification?.play();
+      updateStatus(lineStatus, 'Playing Expenses...', true);
+    });
+    
+    document.getElementById('line-pauseBtn').addEventListener('click', () => {
+      revenueSonification?.pause();
+      expensesSonification?.pause();
+      updateStatus(lineStatus, 'Paused');
+    });
+    
+    document.getElementById('line-stopBtn').addEventListener('click', () => {
+      revenueSonification?.stop();
+      expensesSonification?.stop();
+      updateStatus(lineStatus, 'Stopped');
+    });
+    
+    // Mode toggle
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
+        createLineSonifications();
+        updateStatus(lineStatus, `Mode: ${currentMode}`);
+      });
+    });
+    
+    // Options
+    document.getElementById('scaleSelect').addEventListener('change', () => {
+      createBarSonification();
+      createLineSonifications();
+    });
+    
+    document.getElementById('instrumentSelect').addEventListener('change', () => {
+      createBarSonification();
+      createLineSonifications();
+    });
+    
+    document.getElementById('speedSlider').addEventListener('input', (e) => {
+      const speed = parseFloat(e.target.value);
+      document.getElementById('speedValue').textContent = `${speed.toFixed(1)}x`;
+      barSonification?.setSpeed(speed);
+      revenueSonification?.setSpeed(speed);
+      expensesSonification?.setSpeed(speed);
+    });
+    
+    document.getElementById('durationSlider').addEventListener('input', (e) => {
+      document.getElementById('durationValue').textContent = `${e.target.value}ms`;
+      createBarSonification();
+      createLineSonifications();
+    });
+    
+    // Hover feedback
+    bars.on('mouseenter', (e, d) => updateStatus(barStatus, `${d.month}: $${d.value.toLocaleString()}`));
+    revenueDots.on('mouseenter', (e, d) => updateStatus(lineStatus, `Revenue ${d.month}: $${d.value.toLocaleString()}`));
+    expensesDots.on('mouseenter', (e, d) => updateStatus(lineStatus, `Expenses ${d.month}: $${d.value.toLocaleString()}`));
+    
+    // Copy code buttons
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const code = document.getElementById(btn.dataset.target).textContent;
+        await navigator.clipboard.writeText(code);
+        btn.textContent = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = '📋 Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+    
+    // Global keyboard
+    document.addEventListener('keydown', (e) => {
+      if (e.target.matches('button, input, select')) return;
+      
+      const isBarActive = document.getElementById('bar-container').classList.contains('active');
+      
+      if (e.key === ' ') {
+        e.preventDefault();
+        if (isBarActive) {
+          barSonification?.toggle();
+          updateStatus(barStatus, barSonification?.isPlaying() ? 'Playing...' : 'Paused', barSonification?.isPlaying());
+        } else {
+          if (revenueSonification?.isPlaying()) {
+            revenueSonification.toggle();
+          } else if (expensesSonification?.isPlaying()) {
+            expensesSonification.toggle();
+          } else {
+            revenueSonification?.play();
+            updateStatus(lineStatus, 'Playing Revenue...', true);
+          }
+        }
+      }
+      
+      if ((e.key === 'm' || e.key === 'M') && !isBarActive) {
+        currentMode = currentMode === 'continuous' ? 'discrete' : 'continuous';
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === currentMode));
+        createLineSonifications();
+        updateStatus(lineStatus, `Mode: ${currentMode}`);
+      }
+    });
+  </script>
 </body>
 </html>
-
