@@ -404,19 +404,19 @@
   </style>
 </head>
 <body>
+  <!-- Skip link FIRST for screen readers -->
+  <a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:0;z-index:999;padding:1rem;background:var(--accent-bar);color:white;text-decoration:none;border-radius:0 0 0.5rem 0;" onfocus="this.style.left='0'" onblur="this.style.left='-9999px'">Skip to main content</a>
+  
   <div class="container">
     <header>
       <h1 class="logo">sound3fy</h1>
       <p class="tagline">Making data visualizations accessible through sound</p>
-      <nav style="margin-top:1rem;display:flex;gap:1rem;justify-content:center">
-        <span style="color:white;background:var(--accent-bar);padding:0.4rem 1rem;border-radius:0.4rem">Demo</span>
+      <nav style="margin-top:1rem;display:flex;gap:1rem;justify-content:center" aria-label="Main navigation">
+        <span style="color:white;background:var(--accent-bar);padding:0.4rem 1rem;border-radius:0.4rem" aria-current="page">Demo</span>
         <a href="about.html" style="color:var(--text-muted);text-decoration:none;padding:0.4rem 1rem;border-radius:0.4rem;border:1px solid var(--border)">Why?</a>
         <a href="https://github.com/IsmaelMartinez/sound3fy" style="color:var(--text-muted);text-decoration:none;padding:0.4rem 1rem;border-radius:0.4rem;border:1px solid var(--border)">GitHub</a>
       </nav>
     </header>
-    
-    <!-- Skip link for keyboard users -->
-    <a href="#bar-chart" class="skip-link" style="position:absolute;left:-9999px;top:0;z-index:999;padding:1rem;background:var(--accent-bar);color:white;text-decoration:none;border-radius:0 0 0.5rem 0;" onfocus="this.style.left='0'" onblur="this.style.left='-9999px'">Skip to chart</a>
     
     <!-- Chart Type Selector -->
     <div class="chart-tabs" role="tablist" aria-label="Chart type">
@@ -431,7 +431,7 @@
       </button>
     </div>
     
-    <main>
+    <main id="main-content">
       <!-- BAR CHART -->
       <div class="chart-container active" id="bar-container" role="tabpanel" aria-labelledby="bar-tab">
         <div class="card">
@@ -962,7 +962,7 @@ sonification.<span class="code-function">play</span>();</pre>
       el.classList.toggle('playing', playing);
     }
     
-    // Chart tabs
+    // Chart tabs - manage visibility and screen reader access
     document.querySelectorAll('.chart-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.chart-tab').forEach(t => {
@@ -972,8 +972,14 @@ sonification.<span class="code-function">play</span>();</pre>
         tab.classList.add('active');
         tab.setAttribute('aria-selected', 'true');
         
-        document.querySelectorAll('.chart-container').forEach(c => c.classList.remove('active'));
-        document.getElementById(`${tab.dataset.chart}-container`).classList.add('active');
+        // Hide inactive panels from screen readers with inert
+        document.querySelectorAll('.chart-container').forEach(c => {
+          c.classList.remove('active');
+          c.setAttribute('inert', '');
+        });
+        const activePanel = document.getElementById(`${tab.dataset.chart}-container`);
+        activePanel.classList.add('active');
+        activePanel.removeAttribute('inert');
         
         // Stop any playing
         barSonification?.stop();
@@ -982,6 +988,9 @@ sonification.<span class="code-function">play</span>();</pre>
         scatterSonification?.stop();
       });
     });
+    
+    // Set initial inert state on hidden panels
+    document.querySelectorAll('.chart-container:not(.active)').forEach(c => c.setAttribute('inert', ''));
     
     // Bar chart controls
     document.getElementById('bar-playBtn').addEventListener('click', () => {

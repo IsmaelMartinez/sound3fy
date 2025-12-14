@@ -119,7 +119,7 @@ export class SonificationEngine {
     this.timer = setTimeout(() => this.playDiscrete(), delay);
   }
   
-  playPoint(idx) {
+  playPoint(idx, announce = false) {
     if (idx < 0 || idx >= this.data.length) return;
     
     const item = this.data[idx];
@@ -128,7 +128,7 @@ export class SonificationEngine {
     params.envelope = this.options.envelope;
     
     this.audio.playTone(params);
-    this.announce(this.mapper.describe(item, idx, this.data.length));
+    if (announce) this.announce(this.mapper.describe(item, idx, this.data.length));
     this.updateFocus(item.element);
   }
   
@@ -210,23 +210,23 @@ export class SonificationEngine {
   }
   
   // --- NAVIGATION ---
-  
+
   next() {
     this.audio.init();
     this.index = Math.min(Math.max(0, this.index + 1), this.data.length - 1);
-    this.playPoint(this.index);
+    this.playPoint(this.index, true); // Announce on manual nav
     return this;
   }
   
   previous() {
     this.audio.init();
     this.index = Math.max(0, this.index - 1);
-    this.playPoint(this.index);
+    this.playPoint(this.index, true); // Announce on manual nav
     return this;
   }
   
-  first() { this.audio.init(); this.index = 0; this.playPoint(0); return this; }
-  last() { this.audio.init(); this.index = this.data.length - 1; this.playPoint(this.index); return this; }
+  first() { this.audio.init(); this.index = 0; this.playPoint(0, true); return this; }
+  last() { this.audio.init(); this.index = this.data.length - 1; this.playPoint(this.index, true); return this; }
   
   // --- ACCESSIBILITY ---
   
@@ -255,7 +255,7 @@ export class SonificationEngine {
     const self = this;
     this._hoverHandler = function() {
       const idx = self.data.findIndex(d => d.element === this);
-      if (idx >= 0) { self.audio.init(); self.index = idx; self.playPoint(idx); }
+      if (idx >= 0) { self.audio.init(); self.index = idx; self.playPoint(idx, true); }
     };
     this.selection?.each(function() {
       this.addEventListener('mouseenter', self._hoverHandler);
