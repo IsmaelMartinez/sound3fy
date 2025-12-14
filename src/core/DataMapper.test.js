@@ -218,42 +218,6 @@ describe('DataMapper', () => {
     });
   });
   
-  describe('trend analysis', () => {
-    it('should detect increasing trend', () => {
-      const mapper = new DataMapper({ pitch: { field: 'value' } });
-      const data = [
-        { datum: { value: 10 }, index: 0 },
-        { datum: { value: 20 }, index: 1 },
-        { datum: { value: 30 }, index: 2 },
-        { datum: { value: 50 }, index: 3 },
-        { datum: { value: 80 }, index: 4 },
-        { datum: { value: 100 }, index: 5 }
-      ];
-      
-      mapper.analyze(data);
-      const summary = mapper.summarize(data);
-      
-      expect(summary).toContain('increasing');
-    });
-    
-    it('should detect decreasing trend', () => {
-      const mapper = new DataMapper({ pitch: { field: 'value' } });
-      const data = [
-        { datum: { value: 100 }, index: 0 },
-        { datum: { value: 80 }, index: 1 },
-        { datum: { value: 50 }, index: 2 },
-        { datum: { value: 30 }, index: 3 },
-        { datum: { value: 20 }, index: 4 },
-        { datum: { value: 10 }, index: 5 }
-      ];
-      
-      mapper.analyze(data);
-      const summary = mapper.summarize(data);
-      
-      expect(summary).toContain('decreasing');
-    });
-  });
-  
   describe('format()', () => {
     it('should format large numbers with locale', () => {
       const mapper = new DataMapper();

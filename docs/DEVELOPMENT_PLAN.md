@@ -1,293 +1,77 @@
-# sound3fy Development Plan
+# Development Plan
 
-> **Status**: Active Development  
-> **Last Updated**: December 2024
+> Status: Active Development | Updated: December 2024
 
----
+## Progress
 
-## Overview
+| Phase | Status | Notes |
+|-------|--------|-------|
+| 0. Foundation | ✅ | npm, Vite, Vitest, CI/CD |
+| 1. Core Audio | ✅ | AudioEngine, ADSR, scales |
+| 2. D3 Integration | ✅ | `.sonify()` plugin |
+| 3. Accessibility | ✅ | Keyboard, screen reader, ARIA |
+| 4. Mappings | ✅ | Pitch, pan, volume, duration |
+| 5. Chart Types | ✅ | Bar, line, scatter |
+| 6. User Testing | ⏳ | Planned |
+| 7. Polish | 🚧 | 70% complete |
 
-This document tracks the iterative development of sound3fy. Each phase builds upon the previous, allowing for early testing and feedback.
-
-**Legend:**
-- ✅ Complete
-- 🚧 In Progress
-- ⏳ Planned
-- ❌ Blocked/Cancelled
-
----
-
-## Phase 0: Foundation ✅
-
-**Goal:** Set up project infrastructure  
-**Status:** Complete
-
-| Task | Status | Notes |
-|------|--------|-------|
-| Initialize npm package | ✅ | `sound3fy@0.1.0` |
-| Set up build system (Vite) | ✅ | Using Vite for dev & build |
-| Configure TypeScript | ⏳ | Planned for v1.0 |
-| Set up testing framework (Vitest) | ✅ | 67 tests passing |
-| Create documentation structure | ✅ | `docs/`, ADRs |
-| Set up CI/CD pipeline | ✅ | GitHub Actions for Pages deploy |
-
-**Deliverable:** ✅ Functional npm package with tests and CI/CD
+**Overall: ~85%**
 
 ---
 
-## Phase 1: Core Audio ✅
+## Completed Features
 
-**Goal:** Basic sound generation  
-**Status:** Complete
+### Core (Phases 1-2)
+- Web Audio API engine with ADSR envelopes
+- Musical scales: pentatonic, major, minor, blues, chromatic, continuous
+- D3.js plugin: `selection.sonify(options)`
+- Playback control: play, pause, stop, toggle
+- Navigation: next, previous, first, last
+- Speed control: setSpeed(0.25 - 4.0)
 
-| Task | Status | Notes |
-|------|--------|-------|
-| Implement AudioEngine class | ✅ | `src/core/AudioEngine.js` |
-| Implement basic oscillator with ADSR envelope | ✅ | Full ADSR support |
-| Implement tone scheduling | ✅ | Web Audio API timing |
-| Create pitch mapping (linear and logarithmic) | ✅ | Both modes available |
-| Create volume mapping | ✅ | Range: 0-1 |
-| Add pentatonic scale quantization | ✅ | Default scale |
-| Write unit tests for audio engine | ✅ | 19 tests |
+### Accessibility (Phase 3)
+- Full keyboard navigation (Space, Arrows, Home/End, +/-, M, Esc)
+- Screen reader announcements (`aria-live`)
+- ARIA attributes on data points
+- Visual focus indicators
+- High contrast and reduced motion support
 
-**Deliverable:** ✅ Can play sequences of tones from data arrays
-
-```javascript
-// Phase 1 API (achieved)
-const audio = new AudioEngine(options);
-audio.playTone({ frequency: 440, duration: 0.2, volume: 0.5, pan: 0 });
-```
-
----
-
-## Phase 2: D3 Integration ✅
-
-**Goal:** Basic D3 selection binding  
-**Status:** Complete
-
-| Task | Status | Notes |
-|------|--------|-------|
-| Create D3 plugin wrapper | ✅ | `src/index.js` |
-| Implement `.sonify()` method on selections | ✅ | Chainable API |
-| Extract data from D3 data binding | ✅ | Automatic extraction |
-| Basic options handling | ✅ | Shorthand + full options |
-| Play/Pause/Stop controls | ✅ | Full playback control |
-| Write integration tests with D3 | ✅ | 30 tests in SonificationEngine |
-
-**Deliverable:** ✅ Basic working prototype
-
-```javascript
-// Phase 2 API (achieved)
-d3.selectAll("rect")
-  .data(data)
-  .sonify({ pitch: "value" })
-  .play();
-```
+### Chart Types (Phase 5)
+- **Bar charts**: Discrete mode, individual tones
+- **Line charts**: Continuous mode, frequency sweep
+- **Scatter plots**: 2D mapping (X→pan, Y→pitch)
 
 ---
 
-## Phase 3: Accessibility Layer ✅
+## TODO
 
-**Goal:** Keyboard and screen reader support  
-**Status:** Complete
+### Phase 6: User Testing
+- [ ] Recruit BLV testers
+- [ ] Conduct testing sessions
+- [ ] Document findings
 
-| Task | Status | Notes |
-|------|--------|-------|
-| Implement keyboard navigation | ✅ | Space, Arrows, Home/End, +/-, M, Esc |
-| Create ARIA live region announcer | ✅ | `aria-live="polite"`, `aria-atomic="true"` |
-| Add focus management | ✅ | Tracks current element |
-| Implement element-by-element navigation | ✅ | next(), previous(), seek() |
-| Add visual focus indicators | ✅ | `.sonify-focused` class |
-| Add ARIA attributes to data points | ✅ | `role`, `aria-roledescription`, `aria-label` |
-| High contrast mode support | ✅ | `@media (prefers-contrast: high)` |
-| Reduced motion support | ✅ | `@media (prefers-reduced-motion: reduce)` |
-| Write accessibility tests | ⏳ | Manual testing done, automated planned |
+### Phase 7: Polish
+- [x] Demo website (GitHub Pages)
+- [x] Basic documentation
+- [ ] Performance optimization
+- [ ] Browser compatibility testing
+- [ ] v1.0.0 release
 
-**WCAG 2.2 Compliance:**
-- ✅ 1.1.1 Non-text Content - Values announced via screen reader
-- ✅ 1.4.2 Audio Control - Play/pause/stop controls
-- ✅ 2.1.1 Keyboard - Full keyboard navigation
-- ✅ 2.1.2 No Keyboard Trap - Escape stops sonification
-- ✅ 2.4.7 Focus Visible - Clear focus indicators
-- ✅ 4.1.2 Name, Role, Value - ARIA labels and roles
-
-**Deliverable:** ✅ Fully accessible basic sonification
-
-```javascript
-// Phase 3 API (achieved - accessibility enabled by default)
-d3.selectAll("rect")
-  .data(data)
-  .sonify({ pitch: "value" });
-// Arrow keys navigate, screen reader announces values
-```
-
----
-
-## Phase 4: Advanced Mappings ✅
-
-**Goal:** Sophisticated data-to-audio mapping  
-**Status:** Complete
-
-| Task | Status | Notes |
-|------|--------|-------|
-| Add stereo panning | ✅ | Left-to-right progression |
-| Add duration mapping | ✅ | Configurable per note |
-| Add timbre/instrument selection | ✅ | sine, triangle, square, sawtooth |
-| Support multiple scales | ✅ | pentatonic, major, minor, blues, chromatic, continuous |
-| Add orientation sounds (start/end markers) | ✅ | Configurable markers |
-| Implement axis crossing sounds | ⏳ | Zero-crossing planned |
-| Support multi-series data | ✅ | Line chart example shows this |
-
-**Deliverable:** ✅ Feature-complete mapping system
-
-```javascript
-// Phase 4 API (achieved)
-d3.selectAll("rect")
-  .data(data)
-  .sonify({
-    pitch: { field: "value", scale: "pentatonic", range: [220, 880] },
-    pan: { field: "index", range: [-0.8, 0.8] },
-    volume: { field: "importance", range: [0.3, 0.8] },
-    instrument: "sine",
-    markers: { start: true, end: true }
-  });
-```
-
----
-
-## Phase 5: Chart-Specific Handlers ✅
-
-**Goal:** Optimized handling for common chart types  
-**Status:** Complete (core chart types)
-
-| Task | Status | Notes |
-|------|--------|-------|
-| Bar chart handler (discrete tones) | ✅ | `mode: 'discrete'` |
-| Line chart handler (continuous sweep) | ✅ | `mode: 'continuous'` |
-| Scatter plot handler (2D mapping) | ✅ | `chartType: 'scatter'`, X→pan, Y→pitch |
-| Area chart handler | ⏳ | Low priority, similar to line |
-| Auto-detection of chart type | ⏳ | Planned for v1.0 |
-| Chart-specific announcements | ✅ | Trend descriptions, X/Y values for scatter |
-
-**Deliverable:** ✅ Complete for bar, line, and scatter
-
-```javascript
-// Bar chart - discrete notes
-d3.selectAll("rect")
-  .sonify({ mode: "discrete" });
-
-// Line chart - smooth frequency sweep  
-d3.selectAll("circle")
-  .sonify({ mode: "continuous" });
-
-// Scatter plot - 2D mapping (X→pan, Y→pitch)
-d3.selectAll("circle")
-  .sonify({ 
-    chartType: "scatter",
-    x: "xField",           // X data → stereo pan
-    pitch: { field: "yField" }  // Y data → pitch
-  });
-```
-
----
-
-## Phase 6: User Testing ⏳
-
-**Goal:** Validate with real users  
-**Status:** Planned
-
-| Task | Status | Notes |
-|------|--------|-------|
-| Recruit BLV testers (3-5 users) | ⏳ | |
-| Conduct moderated testing sessions | ⏳ | |
-| Gather feedback on comprehension | ⏳ | |
-| Gather feedback on sound pleasantness | ⏳ | |
-| Gather feedback on navigation usability | ⏳ | |
-| Test screen reader compatibility | ⏳ | |
-| Document findings | ⏳ | |
-| Prioritize improvements | ⏳ | |
-
-**Deliverable:** ⏳ User testing report with action items
-
----
-
-## Phase 7: Polish & Documentation 🚧
-
-**Goal:** Production readiness  
-**Status:** In Progress
-
-| Task | Status | Notes |
-|------|--------|-------|
-| Address user testing feedback | ⏳ | Pending Phase 6 |
-| Performance optimization | ⏳ | |
-| Browser compatibility testing | ⏳ | |
-| Complete API documentation | 🚧 | README covers basics |
-| Create tutorial examples | ✅ | Bar chart + Line chart |
-| Write migration guide | ⏳ | |
-| Create demo website | ✅ | GitHub Pages deployed |
-| Write blog post / announcement | ⏳ | |
-
-**Deliverable:** 🚧 Working toward v1.0.0 release
-
----
-
-## Future Phases (Post v1.0)
-
-### v1.1 - Enhanced Features
-- [ ] Custom instrument synthesis
-- [ ] Real-time data streaming support
-- [ ] Mobile touch gestures
-- [ ] TypeScript types
-
-### v1.2 - Integrations
-- [ ] Observable / Jupyter support
-- [ ] React/Vue component wrappers
-- [ ] Tone.js backend option
-
-### v2.0 - AI-Enhanced
-- [ ] Automatic chart type detection
-- [ ] Smart default mappings
-- [ ] Natural language descriptions
-
----
-
-## Progress Summary
-
-| Phase | Status | Completion |
-|-------|--------|------------|
-| 0. Foundation | ✅ Complete | 100% |
-| 1. Core Audio | ✅ Complete | 100% |
-| 2. D3 Integration | ✅ Complete | 100% |
-| 3. Accessibility | ✅ Complete | 100% |
-| 4. Advanced Mappings | ✅ Complete | 95% |
-| 5. Chart Handlers | ✅ Complete | 90% |
-| 6. User Testing | ⏳ Planned | 0% |
-| 7. Polish & Docs | 🚧 In Progress | 70% |
-
-**Overall Progress: ~85%**
-
-### ARIA Compliance ✅
-- `role="graphics-symbol"` on data points
-- `aria-roledescription="data point"` for context
-- `aria-label` with value descriptions
-- `aria-live="polite"` + `aria-atomic="true"` for announcements
-- High contrast mode support (`prefers-contrast`)
-- Reduced motion support (`prefers-reduced-motion`)
+### Future (Post v1.0)
+- TypeScript support
+- Area chart handler
+- Auto chart type detection
+- React/Vue wrappers
 
 ---
 
 ## Milestones
 
-| Milestone | Target | Status |
-|-----------|--------|--------|
-| First working prototype | ✅ | Complete |
-| GitHub Pages demo | ✅ | Live at https://ismaelmartinez.github.io/sound3fy/ |
-| 67 unit tests | ✅ | All passing |
-| v0.1.0 | ✅ | Published |
-| User testing | ⏳ | Pending |
-| v1.0.0 release | ⏳ | Target: Q1 2025 |
-
----
-
-*Last updated: December 2024*
-
+| Milestone | Status |
+|-----------|--------|
+| Working prototype | ✅ |
+| GitHub Pages demo | ✅ |
+| 71 tests passing | ✅ |
+| v0.1.0 | ✅ |
+| User testing | ⏳ |
+| v1.0.0 | ⏳ Q1 2025 |

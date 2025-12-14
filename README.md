@@ -4,26 +4,21 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-**sound3fy** adds sonification to D3.js visualizations, making charts accessible to blind and low-vision users. Data values become musical notes—higher values play higher pitches, creating an auditory representation of your data.
+**sound3fy** adds sonification to D3.js visualizations, making charts accessible to blind and low-vision users. Data values become musical notes—higher values play higher pitches.
 
 ## Features
 
 - 🎵 **Musical Scales** - Pentatonic, major, minor, blues, chromatic
-- 📈 **Line Chart Support** - Continuous frequency sweep for trends
-- ⚬ **Scatter Plot Support** - 2D mapping (X→pan, Y→pitch)
-- ⌨️ **Full Keyboard Navigation** - Arrow keys, Home/End, speed controls
-- 🔈 **Screen Reader Support** - ARIA live regions announce values
-- 🎯 **Hover to Hear** - Mouse over any data point to hear its value
-- 🎛️ **Customizable** - Control pitch range, duration, speed, and more
-- 📦 **Zero Dependencies** - Just D3.js and Web Audio API
+- 📈 **Chart Support** - Bar, line (continuous sweep), scatter (2D mapping)
+- ⌨️ **Keyboard Navigation** - Full control without mouse
+- 🔈 **Screen Reader** - ARIA live regions announce values
+- 🎯 **Hover to Hear** - Mouse over any data point
 
 ## Quick Start
 
 ```javascript
-// Add sonification with one line
-d3.selectAll("rect")
-  .data(data)
-  .sonify({ pitch: "value" });
+// One line to add sonification
+d3.selectAll(".bar").sonify({ pitch: "value" });
 ```
 
 ## Installation
@@ -32,74 +27,47 @@ d3.selectAll("rect")
 npm install sound3fy
 ```
 
-Or include via CDN:
-```html
-<script src="https://unpkg.com/sound3fy"></script>
-```
-
 ## Usage
 
-### Basic Usage
-
 ```javascript
-// Sonify a bar chart
-const sonification = d3.selectAll(".bar")
-  .data(data)
-  .sonify({ pitch: "value" });
-
-// Control playback
-sonification.play();
-sonification.pause();
-sonification.stop();
-```
-
-### With Options
-
-```javascript
-d3.selectAll(".bar")
+const sonify = d3.selectAll(".bar")
   .data(data)
   .sonify({
     pitch: {
-      field: "value",           // Data field to map
-      range: [220, 880],        // Frequency range (Hz)
-      scale: "pentatonic"       // Musical scale
+      field: "value",
+      range: [220, 880],
+      scale: "pentatonic"
     },
-    duration: 200,              // Note duration (ms)
-    gap: 50,                    // Gap between notes (ms)
-    markers: {
-      start: true,              // Play sound at start
-      end: true                 // Play sound at end
-    }
+    duration: 200,
+    gap: 50
   });
+
+// Control playback
+sonify.play();
+sonify.pause();
+sonify.stop();
+sonify.next();
+sonify.previous();
+sonify.setSpeed(1.5);
 ```
 
-### Available Scales
-
-| Scale | Description |
-|-------|-------------|
-| `pentatonic` | Pleasant, no dissonance (default) |
-| `major` | Bright, happy |
-| `minor` | Serious, somber |
-| `blues` | Bluesy feel |
-| `chromatic` | All 12 notes |
-| `continuous` | Direct frequency mapping |
-
-### Playback Controls
+### Line Charts (Continuous Mode)
 
 ```javascript
-const s = d3.selectAll(".bar").sonify({ pitch: "value" });
+d3.selectAll(".dot").sonify({
+  pitch: "value",
+  mode: "continuous"  // Smooth frequency sweep
+});
+```
 
-s.play();           // Start playback
-s.pause();          // Pause
-s.stop();           // Stop and reset
-s.toggle();         // Toggle play/pause
-s.next();           // Next data point
-s.previous();       // Previous data point
-s.first();          // Jump to first
-s.last();           // Jump to last
-s.setSpeed(1.5);    // 1.5x speed
-s.setMode('continuous'); // Switch to continuous mode
-s.destroy();        // Clean up
+### Scatter Plots (2D Mapping)
+
+```javascript
+d3.selectAll(".dot").sonify({
+  chartType: "scatter",
+  x: "area",              // X → stereo pan
+  pitch: { field: "pop" } // Y → pitch
+});
 ```
 
 ## Keyboard Shortcuts
@@ -107,246 +75,66 @@ s.destroy();        // Clean up
 | Key | Action |
 |-----|--------|
 | `Space` | Play/Pause |
-| `←` `→` | Navigate between points |
-| `Home` | Jump to first |
-| `End` | Jump to last |
-| `+` `-` | Increase/decrease speed |
-| `M` | Toggle continuous/discrete mode |
-| `Escape` | Stop |
+| `←` `→` | Navigate |
+| `Home` `End` | First/Last |
+| `+` `-` | Speed |
+| `M` | Toggle mode |
+| `Esc` | Stop |
 
-## Accessibility
-
-sound3fy is built with accessibility as a core feature, following WCAG 2.2 guidelines:
-
-### Features
-- **Screen Readers**: ARIA live regions with `aria-atomic="true"` for complete announcements
-- **Keyboard Navigation**: Full keyboard support, no mouse required
-- **Focus Indicators**: Visual focus ring that respects high contrast mode
-- **Data Point Labels**: Each point has `aria-label` with value description
-- **Reduced Motion**: Respects `prefers-reduced-motion` user preference
-
-### ARIA Attributes Applied
-```html
-<!-- Data points receive these attributes automatically -->
-<rect role="graphics-symbol"
-      aria-roledescription="data point"
-      aria-label="January: $4,500"
-      tabindex="0" />
-
-<!-- Live region for announcements -->
-<div role="status" aria-live="polite" aria-atomic="true">
-  Point 3 of 12. March. Value: $4,800
-</div>
-```
-
-### WCAG 2.2 Compliance
-| Criterion | Status |
-|-----------|--------|
-| 1.1.1 Non-text Content | ✅ Values announced |
-| 1.4.2 Audio Control | ✅ Play/pause/stop |
-| 2.1.1 Keyboard | ✅ Full navigation |
-| 2.4.7 Focus Visible | ✅ Focus indicators |
-| 4.1.2 Name, Role, Value | ✅ ARIA labels |
-
-## API Reference
-
-### Options
+## Options
 
 ```javascript
 {
-  // Pitch mapping
-  pitch: {
-    field: "value",         // Data field or accessor function
-    range: [220, 880],      // Frequency range [min, max] Hz
-    scale: "pentatonic"     // Musical scale
-  },
-  
-  // Volume mapping (optional)
-  volume: {
-    field: "importance",    // Data field
-    range: [0.4, 0.7]       // Volume range [min, max]
-  },
-  
-  // Stereo panning
-  pan: {
-    range: [-0.7, 0.7]      // Left to right spread
-  },
-  
-  // Timing
-  duration: 200,            // Note duration (ms)
-  gap: 50,                  // Gap between notes (ms)
-  
-  // Sound envelope (ADSR)
-  envelope: {
-    attack: 0.02,
-    decay: 0.05,
-    sustain: 0.7,
-    release: 0.1
-  },
-  
-  // Orientation markers
-  markers: {
-    start: true,            // Play sound at start
-    end: true               // Play sound at end
-  },
-  
-  // Accessibility
-  accessibility: {
-    keyboard: true,         // Enable keyboard navigation
-    announce: true,         // Screen reader announcements
-    focus: true,            // Visual focus indicator
-    hover: true             // Sonify on hover
-  },
-  
-  autoPlay: false           // Start playing immediately
+  pitch: { field: "value", range: [220, 880], scale: "pentatonic" },
+  volume: { field: null, range: [0.4, 0.7] },
+  pan: { range: [-0.7, 0.7] },
+  duration: 200,
+  gap: 50,
+  mode: "discrete",  // or "continuous"
+  markers: { start: true, end: true },
+  accessibility: { keyboard: true, announce: true, focus: true, hover: true }
 }
 ```
 
-### Methods
+### Scales
 
-| Method | Description |
-|--------|-------------|
-| `play()` | Start playback |
-| `pause()` | Pause playback |
-| `stop()` | Stop and reset |
-| `toggle()` | Toggle play/pause |
-| `next()` | Go to next point |
-| `previous()` | Go to previous point |
-| `first()` | Jump to first point |
-| `last()` | Jump to last point |
-| `seek(index)` | Jump to specific index |
-| `setSpeed(multiplier)` | Set playback speed (0.25-4) |
-| `destroy()` | Clean up resources |
+| Scale | Notes |
+|-------|-------|
+| `pentatonic` | Pleasant, no dissonance (default) |
+| `major` | Bright |
+| `minor` | Serious |
+| `blues` | Bluesy |
+| `chromatic` | All 12 notes |
+| `continuous` | Direct frequency |
 
-### State
+## Accessibility
 
-| Method | Returns |
-|--------|---------|
-| `isPlaying()` | `boolean` |
-| `isPaused()` | `boolean` |
-| `currentIndex()` | `number` |
-| `length()` | `number` |
+Built for WCAG 2.2 compliance:
 
-## Examples
-
-### Line Chart (Continuous Mode)
-
-```javascript
-// Continuous sweep - hear the entire trend
-d3.selectAll(".dot")
-  .data(data)
-  .sonify({
-    pitch: "value",
-    mode: "continuous",  // Smooth frequency sweep
-    duration: 150
-  });
-
-// Discrete mode - step through points
-d3.selectAll(".dot")
-  .data(data)
-  .sonify({
-    pitch: "value",
-    mode: "discrete",
-    duration: 200,
-    gap: 30
-  });
-```
-
-### Scatter Plot (2D Mapping)
-
-```javascript
-// X values → stereo pan (left/right position)
-// Y values → pitch (low/high frequency)
-d3.selectAll(".dot")
-  .data(data)
-  .sonify({
-    chartType: "scatter",
-    x: "area",                    // X data field → pan
-    pitch: { field: "population" } // Y data field → pitch
-  });
-
-// Points on the left play from the left speaker
-// Points on the right play from the right speaker
-// Higher Y values = higher pitch
-```
-
-### Multi-Series
-
-```javascript
-d3.selectAll(".bar")
-  .data(data)
-  .sonify({
-    pitch: "value",
-    timbre: {
-      field: "category",
-      mapping: {
-        "sales": "sine",
-        "expenses": "triangle"
-      }
-    }
-  });
-```
-
-## Browser Support
-
-- Chrome 66+
-- Firefox 76+
-- Safari 14+
-- Edge 79+
-
-Requires Web Audio API support.
+- **ARIA**: `role="graphics-symbol"`, `aria-label`, `aria-live="polite"`
+- **Keyboard**: Full navigation
+- **Focus**: Visual indicators with high contrast support
+- **Reduced Motion**: Respects user preferences
 
 ## Development
 
 ```bash
-# Clone
 git clone https://github.com/IsmaelMartinez/sound3fy.git
 cd sound3fy
-
-# Install dependencies
 npm install
-
-# Start dev server
 npm run dev
-
-# Build
-npm run build
+npm test
 ```
 
 ## Documentation
 
-- [Research Document](./docs/RESEARCH.md) - Market analysis, technical research, architecture design
-- [Development Plan](./docs/DEVELOPMENT_PLAN.md) - Implementation roadmap and status (~75% complete)
-- [Architecture Decision Records](./docs/adr/) - Key design decisions and rationale
-
-### Research & Background
-
-This project is based on research into data sonification and accessibility. See [docs/RESEARCH.md](./docs/RESEARCH.md) for:
-
-- Market analysis of existing solutions
-- Technical research on human hearing perception
-- Accessibility standards compliance (WCAG)
-- Development roadmap
-
-## Contributing
-
-We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
-
-**Especially needed:**
-- 👁️ User testing from blind/low-vision users
-- 🔊 Sound design improvements
-- 📝 Documentation
+- [Research](./docs/RESEARCH.md) - Architecture and design
+- [Development Plan](./docs/DEVELOPMENT_PLAN.md) - Roadmap (~85% complete)
+- [ADRs](./docs/adr/) - Key decisions
 
 ## License
 
-MIT License - see [LICENSE](./LICENSE)
-
-## Acknowledgments
-
-Built on research from:
-- [MAIDR](https://arxiv.org/abs/2403.00717) - Multimodal accessible data
-- [Erie](https://arxiv.org/abs/2402.00156) - Declarative sonification grammar
-- [Chart2Music](https://chart2music.com) - Chart sonification library
+MIT
 
 ---
 
