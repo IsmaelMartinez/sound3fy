@@ -115,12 +115,37 @@ s.destroy();        // Clean up
 
 ## Accessibility
 
-sound3fy is built with accessibility as a core feature:
+sound3fy is built with accessibility as a core feature, following WCAG 2.2 guidelines:
 
-- **Screen Readers**: Uses ARIA live regions to announce data values
+### Features
+- **Screen Readers**: ARIA live regions with `aria-atomic="true"` for complete announcements
 - **Keyboard Navigation**: Full keyboard support, no mouse required
-- **Focus Indicators**: Visual focus ring shows current data point
-- **Trend Announcements**: Describes if values are increasing/decreasing
+- **Focus Indicators**: Visual focus ring that respects high contrast mode
+- **Data Point Labels**: Each point has `aria-label` with value description
+- **Reduced Motion**: Respects `prefers-reduced-motion` user preference
+
+### ARIA Attributes Applied
+```html
+<!-- Data points receive these attributes automatically -->
+<rect role="graphics-symbol"
+      aria-roledescription="data point"
+      aria-label="January: $4,500"
+      tabindex="0" />
+
+<!-- Live region for announcements -->
+<div role="status" aria-live="polite" aria-atomic="true">
+  Point 3 of 12. March. Value: $4,800
+</div>
+```
+
+### WCAG 2.2 Compliance
+| Criterion | Status |
+|-----------|--------|
+| 1.1.1 Non-text Content | ✅ Values announced |
+| 1.4.2 Audio Control | ✅ Play/pause/stop |
+| 2.1.1 Keyboard | ✅ Full navigation |
+| 2.4.7 Focus Visible | ✅ Focus indicators |
+| 4.1.2 Name, Role, Value | ✅ ARIA labels |
 
 ## API Reference
 

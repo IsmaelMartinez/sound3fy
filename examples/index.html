@@ -400,29 +400,32 @@
       <p class="tagline">Making data visualizations accessible through sound</p>
     </header>
     
+    <!-- Skip link for keyboard users -->
+    <a href="#bar-chart" class="skip-link" style="position:absolute;left:-9999px;top:0;z-index:999;padding:1rem;background:var(--accent-bar);color:white;text-decoration:none;border-radius:0 0 0.5rem 0;" onfocus="this.style.left='0'" onblur="this.style.left='-9999px'">Skip to chart</a>
+    
     <!-- Chart Type Selector -->
     <div class="chart-tabs" role="tablist" aria-label="Chart type">
-      <button class="chart-tab active" data-chart="bar" role="tab" aria-selected="true">
+      <button class="chart-tab active" data-chart="bar" role="tab" aria-selected="true" aria-controls="bar-container" id="bar-tab">
         📊 Bar Chart
       </button>
-      <button class="chart-tab" data-chart="line" role="tab" aria-selected="false">
+      <button class="chart-tab" data-chart="line" role="tab" aria-selected="false" aria-controls="line-container" id="line-tab">
         📈 Line Chart
       </button>
     </div>
     
     <main>
       <!-- BAR CHART -->
-      <div class="chart-container active" id="bar-container" role="tabpanel">
+      <div class="chart-container active" id="bar-container" role="tabpanel" aria-labelledby="bar-tab">
         <div class="card">
           <h2 class="card-title">📊 Monthly Sales 2024</h2>
           <div id="bar-chart" role="img" aria-label="Bar chart showing monthly sales"></div>
           
           <div class="controls" role="group" aria-label="Playback controls">
-            <button class="btn" id="bar-playBtn">▶ Play</button>
-            <button class="btn btn--ghost" id="bar-pauseBtn">⏸ Pause</button>
-            <button class="btn btn--ghost" id="bar-stopBtn">⏹ Stop</button>
-            <button class="btn btn--ghost" id="bar-prevBtn">⏮</button>
-            <button class="btn btn--ghost" id="bar-nextBtn">⏭</button>
+            <button class="btn" id="bar-playBtn" aria-label="Play sonification">▶ Play</button>
+            <button class="btn btn--ghost" id="bar-pauseBtn" aria-label="Pause sonification">⏸ Pause</button>
+            <button class="btn btn--ghost" id="bar-stopBtn" aria-label="Stop sonification">⏹ Stop</button>
+            <button class="btn btn--ghost" id="bar-prevBtn" aria-label="Previous data point">⏮</button>
+            <button class="btn btn--ghost" id="bar-nextBtn" aria-label="Next data point">⏭</button>
           </div>
           
           <div class="status" id="bar-status" role="status" aria-live="polite">
@@ -468,13 +471,13 @@ sonification.<span class="code-function">stop</span>();    <span class="code-com
       </div>
       
       <!-- LINE CHART -->
-      <div class="chart-container" id="line-container" role="tabpanel">
+      <div class="chart-container" id="line-container" role="tabpanel" aria-labelledby="line-tab">
         <div class="card">
           <h2 class="card-title">📈 Revenue vs Expenses 2024</h2>
           
-          <div class="mode-toggle" role="group" aria-label="Playback mode">
-            <button class="mode-btn active" data-mode="continuous">🎵 Continuous</button>
-            <button class="mode-btn" data-mode="discrete">🔘 Discrete</button>
+          <div class="mode-toggle" role="radiogroup" aria-label="Playback mode">
+            <button class="mode-btn active" data-mode="continuous" role="radio" aria-checked="true">🎵 Continuous</button>
+            <button class="mode-btn" data-mode="discrete" role="radio" aria-checked="false">🔘 Discrete</button>
           </div>
           
           <div id="line-chart" role="img" aria-label="Line chart comparing revenue and expenses"></div>
@@ -485,10 +488,10 @@ sonification.<span class="code-function">stop</span>();    <span class="code-com
           </div>
           
           <div class="controls" role="group" aria-label="Playback controls">
-            <button class="btn btn--line" id="line-playRevenue">▶ Play Revenue</button>
-            <button class="btn btn--secondary" id="line-playExpenses">▶ Play Expenses</button>
-            <button class="btn btn--ghost" id="line-pauseBtn">⏸ Pause</button>
-            <button class="btn btn--ghost" id="line-stopBtn">⏹ Stop</button>
+            <button class="btn btn--line" id="line-playRevenue" aria-label="Play revenue data sonification">▶ Play Revenue</button>
+            <button class="btn btn--secondary" id="line-playExpenses" aria-label="Play expenses data sonification">▶ Play Expenses</button>
+            <button class="btn btn--ghost" id="line-pauseBtn" aria-label="Pause sonification">⏸ Pause</button>
+            <button class="btn btn--ghost" id="line-stopBtn" aria-label="Stop sonification">⏹ Stop</button>
           </div>
           
           <div class="status" id="line-status" role="status" aria-live="polite">
@@ -864,8 +867,12 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
     // Mode toggle
     document.querySelectorAll('.mode-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.mode-btn').forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-checked', 'false');
+        });
         btn.classList.add('active');
+        btn.setAttribute('aria-checked', 'true');
         currentMode = btn.dataset.mode;
         createLineSonifications();
         updateStatus(lineStatus, `Mode: ${currentMode}`);

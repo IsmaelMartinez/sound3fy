@@ -32,11 +32,18 @@ export class SonificationEngine {
     this.mapper.analyze(data);
     
     const a11y = this.options.accessibility || {};
+    const self = this;
     
     if (a11y.focus !== false) {
-      selection.each(function() {
+      selection.each(function(d, i) {
+        // Core ARIA attributes for data points
         this.setAttribute('tabindex', '0');
         this.setAttribute('role', 'graphics-symbol');
+        this.setAttribute('aria-roledescription', 'data point');
+        
+        // Set aria-label with value description
+        const label = self.mapper.describe({ datum: d, index: i, element: this }, i, data.length);
+        this.setAttribute('aria-label', label);
       });
     }
     
@@ -272,7 +279,9 @@ export class SonificationEngine {
       this.liveRegion.id = 'sound3fy-live';
       this.liveRegion.setAttribute('role', 'status');
       this.liveRegion.setAttribute('aria-live', 'polite');
-      this.liveRegion.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)';
+      this.liveRegion.setAttribute('aria-atomic', 'true'); // Announce complete message
+      // Screen reader only - visually hidden but accessible
+      this.liveRegion.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0';
       document.body.appendChild(this.liveRegion);
     } else {
       this.liveRegion = document.getElementById('sound3fy-live');
@@ -281,7 +290,25 @@ export class SonificationEngine {
     if (!document.getElementById('sound3fy-styles')) {
       const style = document.createElement('style');
       style.id = 'sound3fy-styles';
-      style.textContent = '.sonify-focused{outline:3px solid #4A90D9!important;outline-offset:2px}';
+      style.textContent = `
+        .sonify-focused {
+          outline: 3px solid #4A90D9 !important;
+          outline-offset: 2px;
+        }
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+          .sonify-focused {
+            outline: 4px solid currentColor !important;
+            outline-offset: 3px;
+          }
+        }
+        /* Reduced motion - disable animated focus transitions */
+        @media (prefers-reduced-motion: reduce) {
+          .sonify-focused {
+            transition: none !important;
+          }
+        }
+      `.replace(/\s+/g, ' ');
       document.head.appendChild(style);
     }
   }
@@ -323,6 +350,9 @@ export class SonificationEngine {
       if (hh) { this.removeEventListener('mouseenter', hh); this.removeEventListener('focus', hh); }
       this.classList.remove('sonify-focused');
       this.removeAttribute('tabindex');
+      this.removeAttribute('role');
+      this.removeAttribute('aria-roledescription');
+      this.removeAttribute('aria-label');
     });
   }
 }

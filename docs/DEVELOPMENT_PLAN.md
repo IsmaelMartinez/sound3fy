@@ -94,11 +94,22 @@ d3.selectAll("rect")
 | Task | Status | Notes |
 |------|--------|-------|
 | Implement keyboard navigation | ✅ | Space, Arrows, Home/End, +/-, M, Esc |
-| Create ARIA live region announcer | ✅ | Polite announcements |
+| Create ARIA live region announcer | ✅ | `aria-live="polite"`, `aria-atomic="true"` |
 | Add focus management | ✅ | Tracks current element |
 | Implement element-by-element navigation | ✅ | next(), previous(), seek() |
 | Add visual focus indicators | ✅ | `.sonify-focused` class |
+| Add ARIA attributes to data points | ✅ | `role`, `aria-roledescription`, `aria-label` |
+| High contrast mode support | ✅ | `@media (prefers-contrast: high)` |
+| Reduced motion support | ✅ | `@media (prefers-reduced-motion: reduce)` |
 | Write accessibility tests | ⏳ | Manual testing done, automated planned |
+
+**WCAG 2.2 Compliance:**
+- ✅ 1.1.1 Non-text Content - Values announced via screen reader
+- ✅ 1.4.2 Audio Control - Play/pause/stop controls
+- ✅ 2.1.1 Keyboard - Full keyboard navigation
+- ✅ 2.1.2 No Keyboard Trap - Escape stops sonification
+- ✅ 2.4.7 Focus Visible - Clear focus indicators
+- ✅ 4.1.2 Name, Role, Value - ARIA labels and roles
 
 **Deliverable:** ✅ Fully accessible basic sonification
 
@@ -242,9 +253,17 @@ d3.selectAll("circle")
 | 4. Advanced Mappings | ✅ Complete | 95% |
 | 5. Chart Handlers | 🚧 In Progress | 60% |
 | 6. User Testing | ⏳ Planned | 0% |
-| 7. Polish & Docs | 🚧 In Progress | 50% |
+| 7. Polish & Docs | 🚧 In Progress | 60% |
 
-**Overall Progress: ~75%**
+**Overall Progress: ~80%**
+
+### ARIA Compliance ✅
+- `role="graphics-symbol"` on data points
+- `aria-roledescription="data point"` for context
+- `aria-label` with value descriptions
+- `aria-live="polite"` + `aria-atomic="true"` for announcements
+- High contrast mode support (`prefers-contrast`)
+- Reduced motion support (`prefers-reduced-motion`)
 
 ---
 
