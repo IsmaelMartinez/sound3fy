@@ -269,9 +269,14 @@ npm run dev
 npm run build
 ```
 
-## Research & Background
+## Documentation
 
-This project is based on research into data sonification and accessibility. See [RESEARCH.md](./RESEARCH.md) for:
+- [Research Document](./docs/RESEARCH.md) - Market analysis, technical research, development roadmap
+- [Architecture Decision Records](./docs/adr/) - Key design decisions and rationale
+
+### Research & Background
+
+This project is based on research into data sonification and accessibility. See [docs/RESEARCH.md](./docs/RESEARCH.md) for:
 
 - Market analysis of existing solutions
 - Technical research on human hearing perception
