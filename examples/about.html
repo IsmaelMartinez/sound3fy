@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why sound3fy? - Making Data Accessible</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-card: #14141f;
+      --accent: #8b5cf6;
+      --accent-green: #10b981;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: #1e1e32;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    header {
+      text-align: center;
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 3rem;
+    }
+    
+    .logo {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .tagline {
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      font-size: 1.1rem;
+    }
+    
+    nav {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+    
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+    }
+    
+    nav a:hover, nav a.active {
+      color: white;
+      background: var(--accent);
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+      margin: 2.5rem 0 1rem;
+      color: var(--accent);
+    }
+    
+    p {
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+    }
+    
+    .highlight {
+      background: var(--bg-card);
+      border-left: 4px solid var(--accent);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 0 0.5rem 0.5rem 0;
+    }
+    
+    .highlight p {
+      margin: 0;
+      color: var(--text);
+      font-size: 1.1rem;
+    }
+    
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    
+    .stat {
+      background: var(--bg-card);
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+    }
+    
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    th {
+      color: var(--text);
+      font-weight: 500;
+    }
+    
+    td {
+      color: var(--text-muted);
+    }
+    
+    .check { color: var(--accent-green); }
+    .cross { color: #ef4444; }
+    
+    ul {
+      margin: 1rem 0 1rem 1.5rem;
+      color: var(--text-muted);
+    }
+    
+    li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .cta {
+      text-align: center;
+      margin: 3rem 0;
+      padding: 2rem;
+      background: var(--bg-card);
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+    }
+    
+    .cta h3 {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 2rem;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+    }
+    
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+    
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">sound3fy</div>
+      <p class="tagline">Making data visualizations accessible through sound</p>
+      <nav>
+        <a href="index.html">Demo</a>
+        <a href="about.html" class="active">Why?</a>
+        <a href="https://github.com/IsmaelMartinez/sound3fy">GitHub</a>
+      </nav>
+    </header>
+    
+    <main>
+      <h2>The Problem</h2>
+      <p>Data visualizations are fundamentally visual. When a sighted person views a chart, they instantly perceive comparisons, trends, and patterns. But what about the hundreds of millions who can't see them?</p>
+      
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-number">43M</div>
+          <div class="stat-label">Blind individuals globally</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">295M</div>
+          <div class="stat-label">Low-vision users</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">2.2B</div>
+          <div class="stat-label">Vision impairment (WHO)</div>
+        </div>
+      </div>
+      
+      <p>Screen readers can only provide generic descriptions like "Bar chart showing sales data" or read data tables row by row. This loses the instant "gestalt" understanding that visualizations provide.</p>
+      
+      <h2>The Solution: Sonification</h2>
+      
+      <div class="highlight">
+        <p>Sonification converts data into non-speech audio. Higher values become higher pitches. Position becomes stereo panning. Patterns become audible.</p>
+      </div>
+      
+      <p>Human hearing can detect:</p>
+      <ul>
+        <li><strong>Pitch changes</strong> → Value magnitude (higher = more)</li>
+        <li><strong>Stereo panning</strong> → Position (left to right)</li>
+        <li><strong>Volume</strong> → Emphasis or importance</li>
+        <li><strong>Rhythm</strong> → Trends and patterns</li>
+      </ul>
+      
+      <p>Research shows blind users can achieve <strong>comparable comprehension</strong> to sighted users when data is properly sonified.</p>
+      
+      <h2>The Gap</h2>
+      <p>While sonification libraries exist, none integrate with D3.js—the most popular data visualization library powering millions of charts on the web.</p>
+      
+      <table>
+        <tr>
+          <th>Solution</th>
+          <th>D3.js Native</th>
+          <th>Keyboard</th>
+          <th>Screen Reader</th>
+          <th>Open Source</th>
+        </tr>
+        <tr>
+          <td>Chart2Music</td>
+          <td class="cross">✗</td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+        </tr>
+        <tr>
+          <td>Highcharts</td>
+          <td class="cross">✗</td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+          <td class="cross">✗ Commercial</td>
+        </tr>
+        <tr>
+          <td>Google Charts</td>
+          <td class="cross">✗</td>
+          <td class="cross">✗</td>
+          <td class="cross">✗</td>
+          <td class="cross">✗</td>
+        </tr>
+        <tr>
+          <td><strong>sound3fy</strong></td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+          <td class="check">✓</td>
+        </tr>
+      </table>
+      
+      <h2>Our Approach</h2>
+      <p>sound3fy is designed to be:</p>
+      <ul>
+        <li><strong>Simple</strong> — One line of code: <code>.sonify({ pitch: "value" })</code></li>
+        <li><strong>Accessible</strong> — Full keyboard navigation and screen reader support</li>
+        <li><strong>Musical</strong> — Uses pentatonic scales so it sounds pleasant, not jarring</li>
+        <li><strong>Open</strong> — MIT licensed, zero dependencies beyond D3.js</li>
+      </ul>
+      
+      <div class="cta">
+        <h3>Try the Demo</h3>
+        <p style="margin-bottom: 1.5rem;">Experience data through sound—bar charts, line charts, and scatter plots.</p>
+        <a href="index.html" class="btn">▶ Open Demo</a>
+      </div>
+      
+      <h2>References</h2>
+      <ul>
+        <li><a href="https://www.who.int/news-room/fact-sheets/detail/blindness-and-visual-impairment" style="color: var(--accent)">WHO Vision Impairment Statistics</a></li>
+        <li><a href="https://chart2music.com" style="color: var(--accent)">Chart2Music</a> — Prior art in chart sonification</li>
+        <li><a href="https://github.com/xability/maidr" style="color: var(--accent)">MAIDR</a> — Multimodal accessible data research</li>
+        <li><a href="https://www.w3.org/WAI/WCAG21/quickref/" style="color: var(--accent)">WCAG 2.1</a> — Web accessibility guidelines</li>
+      </ul>
+    </main>
+    
+    <footer>
+      <p>sound3fy is open source. <a href="https://github.com/IsmaelMartinez/sound3fy">View on GitHub</a></p>
+    </footer>
+  </div>
+</body>
+</html>
+
