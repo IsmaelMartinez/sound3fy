@@ -271,7 +271,8 @@ npm run build
 
 ## Documentation
 
-- [Research Document](./docs/RESEARCH.md) - Market analysis, technical research, development roadmap
+- [Research Document](./docs/RESEARCH.md) - Market analysis, technical research, architecture design
+- [Development Plan](./docs/DEVELOPMENT_PLAN.md) - Implementation roadmap and status (~75% complete)
 - [Architecture Decision Records](./docs/adr/) - Key design decisions and rationale
 
 ### Research & Background
