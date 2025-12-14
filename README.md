@@ -132,6 +132,10 @@ npm test  # 70 tests
 - [Research](./docs/RESEARCH.md) - Architecture and design
 - [ADRs](./docs/adr/) - Key decisions
 
+## Help Wanted
+
+**Are you blind or low-vision?** Your feedback is invaluable! Please [share your experience](https://github.com/IsmaelMartinez/sound3fy/issues) — does the sonification work for you?
+
 ## License
 
 MIT

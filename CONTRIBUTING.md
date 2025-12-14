@@ -13,11 +13,11 @@ If you are blind or have low vision, your feedback is invaluable. We need help u
 - Is the keyboard navigation intuitive?
 - Does it work well with your screen reader?
 
-Please [open an issue](https://github.com/your-username/sound3fy/issues) with your feedback or contact us directly.
+Please [open an issue](https://github.com/IsmaelMartinez/sound3fy/issues) with your feedback.
 
 ### 🐛 Bug Reports
 
-Found a bug? Please [open an issue](https://github.com/your-username/sound3fy/issues) with:
+Found a bug? Please [open an issue](https://github.com/IsmaelMartinez/sound3fy/issues) with:
 
 - A clear description of the problem
 - Steps to reproduce
@@ -46,7 +46,7 @@ Have an idea? We'd love to hear it! Open an issue with:
 
 ```bash
 # Clone your fork
-git clone https://github.com/your-username/sound3fy.git
+git clone https://github.com/IsmaelMartinez/sound3fy.git
 cd sound3fy
 
 # Install dependencies
