@@ -4,6 +4,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
+**[▶ Live Demo](https://ismaelmartinez.github.io/sound3fy/)**
+
 **sound3fy** adds sonification to D3.js visualizations, making charts accessible to blind and low-vision users. Data values become musical notes—higher values play higher pitches.
 
 ## Features
@@ -123,7 +125,7 @@ git clone https://github.com/IsmaelMartinez/sound3fy.git
 cd sound3fy
 npm install
 npm run dev
-npm test
+npm test  # 70 tests
 ```
 
 ## Documentation
