@@ -1,145 +1,85 @@
-# sound3fy Research
-
-> Making D3.js visualizations accessible through sound
-
-## Summary
-
-**Problem:** Data visualizations are inaccessible to blind and low-vision users (~340 million globally).
-
-**Solution:** A D3.js plugin that converts visual data into sound through sonification.
-
-**Key Insight:** Human auditory perception can effectively convey data patterns:
-- **Pitch** → Value magnitude (higher pitch = higher value)
-- **Pan** → Position (left speaker = start, right = end)
-- **Volume** → Emphasis
-- **Duration** → Timing/rhythm
-
-## Gap Analysis
-
-| Solution | D3.js Native | Keyboard Nav | Screen Reader | Open Source |
-|----------|--------------|--------------|---------------|-------------|
-| Chart2Music | ❌ | ✅ | ✅ | ✅ |
-| Highcharts | ❌ | ✅ | ✅ | ❌ (Commercial) |
-| Google Charts | ❌ | ❌ | ❌ | ❌ |
-| **sound3fy** | ✅ | ✅ | ✅ | ✅ |
-
-**Finding:** No D3.js-specific sonification library exists. This is the gap sound3fy fills.
+# sound3fy Technical Design
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────┐
-│                  D3.js Selection                │
-│              selection.sonify(options)          │
-└───────────────────────┬─────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────┐
-│              SonificationEngine                 │
-│  - Playback control (play/pause/stop)           │
-│  - Navigation (next/previous/seek)              │
-│  - Accessibility (keyboard, announcements)      │
-└───────────────────────┬─────────────────────────┘
-                        │
-         ┌──────────────┴──────────────┐
-         ▼                             ▼
-┌─────────────────┐          ┌─────────────────┐
-│   DataMapper    │          │   AudioEngine   │
-│  - Analyze data │          │  - Web Audio API│
-│  - Map to audio │          │  - Play tones   │
-│  - Descriptions │          │  - ADSR envelope│
-└─────────────────┘          └─────────────────┘
+D3.js Selection
+      │
+      ▼
+┌─────────────────────────────────────┐
+│        SonificationEngine           │
+│  - Playback (play/pause/stop)       │
+│  - Navigation (next/prev/seek)      │
+│  - Accessibility (keyboard, ARIA)   │
+└─────────────────┬───────────────────┘
+                  │
+       ┌──────────┴──────────┐
+       ▼                     ▼
+┌─────────────┐       ┌─────────────┐
+│ DataMapper  │       │ AudioEngine │
+│ - Analyze   │       │ - Web Audio │
+│ - Map data  │       │ - ADSR      │
+│ - Describe  │       │ - Scales    │
+└─────────────┘       └─────────────┘
 ```
 
-## API Design
+## API
 
-### Minimal Usage
 ```javascript
+// Minimal
 d3.selectAll(".bar").sonify({ pitch: "value" });
-```
 
-### Full Options
-```javascript
+// Full options
 selection.sonify({
-  // Data mapping
   pitch: { field: "value", range: [220, 880], scale: "pentatonic" },
   volume: { field: "importance", range: [0.3, 0.8] },
   pan: { range: [-0.7, 0.7] },
-  
-  // Playback
-  duration: 200,      // ms per data point
-  gap: 50,            // ms between points
-  mode: "discrete",   // or "continuous"
-  
-  // Chart type (for 2D mapping)
-  chartType: "scatter",
-  x: "xField",        // X data → stereo pan
-  
-  // Accessibility
-  accessibility: { keyboard: true, announce: true, focus: true }
+  duration: 200,
+  gap: 50,
+  mode: "discrete",  // or "continuous"
+  chartType: "scatter",  // enables X→pan mapping
+  x: "xField"
 });
+
+// Control
+sonify.play();
+sonify.pause();
+sonify.stop();
+sonify.next();
+sonify.previous();
+sonify.setSpeed(1.5);
+sonify.destroy();
 ```
 
-### Playback Control
-```javascript
-const sonify = selection.sonify(options);
+## Data Mapping
 
-sonify.play();       // Start playback
-sonify.pause();      // Pause
-sonify.stop();       // Stop and reset
-sonify.toggle();     // Play/pause toggle
+| Data | Audio | Effect |
+|------|-------|--------|
+| Value | Pitch | Higher value = higher frequency |
+| Position | Pan | Left to right = left to right speaker |
+| Index | Time | Sequential playback |
+| Category | Timbre | Different wave shapes |
 
-sonify.next();       // Next data point
-sonify.previous();   // Previous data point
-sonify.first();      // Jump to first
-sonify.last();       // Jump to last
+## Scales
 
-sonify.setSpeed(1.5);        // Playback speed
-sonify.setMode("continuous"); // Change mode
-sonify.destroy();            // Clean up
-```
+| Scale | Intervals | Use |
+|-------|-----------|-----|
+| Pentatonic | 0,2,4,7,9 | Default, pleasant |
+| Major | 0,2,4,5,7,9,11 | Bright |
+| Minor | 0,2,3,5,7,8,10 | Serious |
+| Blues | 0,3,5,6,7,10 | Emphasis |
+| Chromatic | 0-11 | Precision |
+| Continuous | Linear | Smooth |
 
-## Accessibility Standards
+## Accessibility
 
-### WCAG 2.1 Compliance
-- **1.1.1 Non-text Content** - ARIA labels on all data points
-- **1.3.1 Info and Relationships** - Semantic roles (`graphics-symbol`)
-- **2.1.1 Keyboard** - Full keyboard navigation
-- **4.1.2 Name, Role, Value** - Screen reader announcements
-
-### Keyboard Shortcuts
-| Key | Action |
-|-----|--------|
-| `Space` | Play/Pause |
-| `←` `→` | Previous/Next |
-| `Home` `End` | First/Last |
-| `+` `-` | Faster/Slower |
-| `M` | Toggle mode |
-| `Esc` | Stop |
-
-### Screen Reader Support
-- Live region announcements for values
-- Chart summary on play start
-- Data point descriptions with context
-
-## Musical Scales
-
-Using musical scales makes sonification more pleasant and patterns more recognizable:
-
-| Scale | Notes | Best For |
-|-------|-------|----------|
-| Pentatonic | 5 per octave | General use (no dissonance) |
-| Major | 7 per octave | Positive/happy data |
-| Minor | 7 per octave | Serious/concerning data |
-| Blues | 6 per octave | Emphasis on mid-range |
-| Chromatic | 12 per octave | Maximum precision |
-| Continuous | Infinite | Smooth trends |
+- **WCAG 2.1**: 1.1.1, 1.3.1, 2.1.1, 4.1.2
+- **ARIA**: `role="graphics-symbol"`, `aria-label`, `aria-live`
+- **Keyboard**: Space, Arrows, Home/End, +/-, M, Esc
+- **Preferences**: `prefers-contrast`, `prefers-reduced-motion`
 
 ## References
 
 - [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 - [WCAG 2.1](https://www.w3.org/WAI/WCAG21/quickref/)
-- [Chart2Music](https://chart2music.com/) - Prior art
-- [MAIDR](https://github.com/xability/maidr) - Accessibility research
-- [D3.js](https://d3js.org/) - Target platform
-
+- [Why sound3fy?](https://ismaelmartinez.github.io/sound3fy/about.html)
