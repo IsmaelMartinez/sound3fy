@@ -64,15 +64,7 @@ export class SonificationEngine {
     this.playing = true;
     this.paused = false;
     
-    if (this.index < 0) {
-      this.index = 0;
-      this.announce(this.mapper.summarize(this.data));
-      await this.wait(600);
-      if (this.options.markers?.start !== false) {
-        this.audio.playMarker('start');
-        await this.wait(100);
-      }
-    }
+    if (this.index < 0) this.index = 0;
     
     this.mode === 'continuous' ? this.playContinuous() : this.playDiscrete();
     return this;
@@ -82,7 +74,6 @@ export class SonificationEngine {
     this.paused = true;
     clearTimeout(this.timer);
     this.stopContinuousSound();
-    this.announce('Paused');
     return this;
   }
   

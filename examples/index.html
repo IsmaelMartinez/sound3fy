@@ -436,18 +436,19 @@
       <div class="chart-container active" id="bar-container" role="tabpanel" aria-labelledby="bar-tab">
         <div class="card">
           <h2 class="card-title">📊 Monthly Sales 2024</h2>
-          <div id="bar-chart" role="img" aria-label="Bar chart showing monthly sales"></div>
           
           <div class="controls" role="group" aria-label="Playback controls">
-            <button class="btn" id="bar-playBtn" aria-label="Play sonification">▶ Play</button>
-            <button class="btn btn--ghost" id="bar-pauseBtn" aria-label="Pause sonification">⏸ Pause</button>
-            <button class="btn btn--ghost" id="bar-stopBtn" aria-label="Stop sonification">⏹ Stop</button>
-            <button class="btn btn--ghost" id="bar-prevBtn" aria-label="Previous data point">⏮</button>
-            <button class="btn btn--ghost" id="bar-nextBtn" aria-label="Next data point">⏭</button>
+            <button class="btn" id="bar-playBtn" aria-label="Play bar chart">▶ Play</button>
+            <button class="btn btn--ghost" id="bar-pauseBtn" aria-label="Pause">⏸ Pause</button>
+            <button class="btn btn--ghost" id="bar-stopBtn" aria-label="Stop">⏹ Stop</button>
+            <button class="btn btn--ghost" id="bar-prevBtn" aria-label="Previous bar">⏮</button>
+            <button class="btn btn--ghost" id="bar-nextBtn" aria-label="Next bar">⏭</button>
           </div>
           
+          <div id="bar-chart" role="img" aria-label="Bar chart showing monthly sales data. Use arrow keys to explore individual bars."></div>
+          
           <div class="status" id="bar-status" role="status" aria-live="polite">
-            Press Play or hover over bars to hear the data
+            Press Play or use arrow keys to hear the data
           </div>
         </div>
         
@@ -455,7 +456,7 @@
         <div class="code-card">
           <div class="code-header">
             <span class="code-title">💻 Code Example</span>
-            <button class="copy-btn" data-target="bar-code">📋 Copy</button>
+            <button class="copy-btn" data-target="bar-code" tabindex="-1">📋 Copy</button>
           </div>
           <div class="code-content">
             <pre id="bar-code"><span class="code-comment">// Create your D3 bar chart as usual</span>
@@ -498,22 +499,22 @@ sonification.<span class="code-function">stop</span>();    <span class="code-com
             <button class="mode-btn" data-mode="discrete" role="radio" aria-checked="false">🔘 Discrete</button>
           </div>
           
-          <div id="line-chart" role="img" aria-label="Line chart comparing revenue and expenses"></div>
+          <div class="controls" role="group" aria-label="Playback controls">
+            <button class="btn btn--line" id="line-playRevenue" aria-label="Play revenue line">▶ Play Revenue</button>
+            <button class="btn btn--secondary" id="line-playExpenses" aria-label="Play expenses line">▶ Play Expenses</button>
+            <button class="btn btn--ghost" id="line-pauseBtn" aria-label="Pause">⏸ Pause</button>
+            <button class="btn btn--ghost" id="line-stopBtn" aria-label="Stop">⏹ Stop</button>
+          </div>
           
-          <div class="legend">
+          <div id="line-chart" role="img" aria-label="Line chart comparing revenue and expenses over 12 months"></div>
+          
+          <div class="legend" aria-hidden="true">
             <div class="legend-item"><div class="legend-dot primary"></div><span>Revenue</span></div>
             <div class="legend-item"><div class="legend-dot secondary"></div><span>Expenses</span></div>
           </div>
           
-          <div class="controls" role="group" aria-label="Playback controls">
-            <button class="btn btn--line" id="line-playRevenue" aria-label="Play revenue data sonification">▶ Play Revenue</button>
-            <button class="btn btn--secondary" id="line-playExpenses" aria-label="Play expenses data sonification">▶ Play Expenses</button>
-            <button class="btn btn--ghost" id="line-pauseBtn" aria-label="Pause sonification">⏸ Pause</button>
-            <button class="btn btn--ghost" id="line-stopBtn" aria-label="Stop sonification">⏹ Stop</button>
-          </div>
-          
           <div class="status" id="line-status" role="status" aria-live="polite">
-            Click Play or hover over data points
+            Press Play or use arrow keys
           </div>
         </div>
         
@@ -521,7 +522,7 @@ sonification.<span class="code-function">stop</span>();    <span class="code-com
         <div class="code-card">
           <div class="code-header">
             <span class="code-title">💻 Code Example</span>
-            <button class="copy-btn" data-target="line-code">📋 Copy</button>
+            <button class="copy-btn" data-target="line-code" tabindex="-1">📋 Copy</button>
           </div>
           <div class="code-content">
             <pre id="line-code"><span class="code-comment">// Create your D3 line chart as usual</span>
@@ -561,22 +562,22 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
       <div class="chart-container" id="scatter-container" role="tabpanel" aria-labelledby="scatter-tab">
         <div class="card">
           <h2 class="card-title">⚬ City Population vs Area</h2>
-          <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;">
+          <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;" aria-hidden="true">
             X position → stereo pan (left/right) · Y value → pitch (low/high)
           </p>
           
-          <div id="scatter-chart" role="img" aria-label="Scatter plot showing city population versus area"></div>
-          
           <div class="controls" role="group" aria-label="Playback controls">
-            <button class="btn" id="scatter-playBtn" style="background:#f59e0b" aria-label="Play sonification">▶ Play</button>
-            <button class="btn btn--ghost" id="scatter-pauseBtn" aria-label="Pause sonification">⏸ Pause</button>
-            <button class="btn btn--ghost" id="scatter-stopBtn" aria-label="Stop sonification">⏹ Stop</button>
-            <button class="btn btn--ghost" id="scatter-prevBtn" aria-label="Previous data point">⏮</button>
-            <button class="btn btn--ghost" id="scatter-nextBtn" aria-label="Next data point">⏭</button>
+            <button class="btn" id="scatter-playBtn" style="background:#f59e0b" aria-label="Play scatter plot">▶ Play</button>
+            <button class="btn btn--ghost" id="scatter-pauseBtn" aria-label="Pause">⏸ Pause</button>
+            <button class="btn btn--ghost" id="scatter-stopBtn" aria-label="Stop">⏹ Stop</button>
+            <button class="btn btn--ghost" id="scatter-prevBtn" aria-label="Previous point">⏮</button>
+            <button class="btn btn--ghost" id="scatter-nextBtn" aria-label="Next point">⏭</button>
           </div>
           
+          <div id="scatter-chart" role="img" aria-label="Scatter plot of 15 cities. X is area, Y is population. Use arrow keys to explore."></div>
+          
           <div class="status" id="scatter-status" role="status" aria-live="polite">
-            Hover over points: X (area) → pan position, Y (population) → pitch
+            Press Play or use arrow keys
           </div>
         </div>
         
@@ -584,7 +585,7 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
         <div class="code-card">
           <div class="code-header">
             <span class="code-title">💻 Code Example</span>
-            <button class="copy-btn" data-target="scatter-code">📋 Copy</button>
+            <button class="copy-btn" data-target="scatter-code" tabindex="-1">📋 Copy</button>
           </div>
           <div class="code-content">
             <pre id="scatter-code"><span class="code-comment">// Scatter plot with 2D sonification</span>

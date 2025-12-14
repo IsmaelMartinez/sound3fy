@@ -106,10 +106,7 @@ describe('SonificationEngine', () => {
     });
     
     it('should set playing state', async () => {
-      const playPromise = engine.play();
-      
-      // Advance past the summary announcement delay
-      await vi.advanceTimersByTimeAsync(1000);
+      await engine.play();
       
       expect(engine.playing).toBe(true);
       expect(engine.paused).toBe(false);
