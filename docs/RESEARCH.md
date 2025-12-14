@@ -143,6 +143,3 @@ Using musical scales makes sonification more pleasant and patterns more recogniz
 - [MAIDR](https://github.com/xability/maidr) - Accessibility research
 - [D3.js](https://d3js.org/) - Target platform
 
----
-
-See [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md) for implementation status.

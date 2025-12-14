@@ -129,7 +129,6 @@ npm test
 ## Documentation
 
 - [Research](./docs/RESEARCH.md) - Architecture and design
-- [Development Plan](./docs/DEVELOPMENT_PLAN.md) - Roadmap (~85% complete)
 - [ADRs](./docs/adr/) - Key decisions
 
 ## License
