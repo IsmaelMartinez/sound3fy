@@ -103,6 +103,11 @@
       border-color: var(--accent-line);
     }
     
+    .chart-tab[data-chart="scatter"].active {
+      background: #f59e0b;
+      border-color: #f59e0b;
+    }
+    
     /* Cards */
     .card {
       background: var(--bg-card);
@@ -154,6 +159,11 @@
     
     .dot:hover, .dot:focus, .dot.sonify-focused { r: 8; outline: none; }
     .dot.sonify-focused { filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5)); }
+    
+    /* Scatter Plot Styles */
+    .scatter-dot { cursor: pointer; transition: r 0.15s ease, opacity 0.15s ease; opacity: 0.8; }
+    .scatter-dot:hover, .scatter-dot:focus, .scatter-dot.sonify-focused { r: 10; opacity: 1; outline: none; }
+    .scatter-dot.sonify-focused { filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6)); }
     
     .axis text { fill: var(--text-muted); font-size: 11px; }
     .axis path, .axis line { stroke: var(--border); }
@@ -411,6 +421,9 @@
       <button class="chart-tab" data-chart="line" role="tab" aria-selected="false" aria-controls="line-container" id="line-tab">
         📈 Line Chart
       </button>
+      <button class="chart-tab" data-chart="scatter" role="tab" aria-selected="false" aria-controls="scatter-container" id="scatter-tab">
+        ⚬ Scatter Plot
+      </button>
     </div>
     
     <main>
@@ -539,6 +552,68 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
         </div>
       </div>
       
+      <!-- SCATTER PLOT -->
+      <div class="chart-container" id="scatter-container" role="tabpanel" aria-labelledby="scatter-tab">
+        <div class="card">
+          <h2 class="card-title">⚬ City Population vs Area</h2>
+          <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;">
+            X position → stereo pan (left/right) · Y value → pitch (low/high)
+          </p>
+          
+          <div id="scatter-chart" role="img" aria-label="Scatter plot showing city population versus area"></div>
+          
+          <div class="controls" role="group" aria-label="Playback controls">
+            <button class="btn" id="scatter-playBtn" style="background:#f59e0b" aria-label="Play sonification">▶ Play</button>
+            <button class="btn btn--ghost" id="scatter-pauseBtn" aria-label="Pause sonification">⏸ Pause</button>
+            <button class="btn btn--ghost" id="scatter-stopBtn" aria-label="Stop sonification">⏹ Stop</button>
+            <button class="btn btn--ghost" id="scatter-prevBtn" aria-label="Previous data point">⏮</button>
+            <button class="btn btn--ghost" id="scatter-nextBtn" aria-label="Next data point">⏭</button>
+          </div>
+          
+          <div class="status" id="scatter-status" role="status" aria-live="polite">
+            Hover over points: X (area) → pan position, Y (population) → pitch
+          </div>
+        </div>
+        
+        <!-- Scatter Plot Code Example -->
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-title">💻 Code Example</span>
+            <button class="copy-btn" data-target="scatter-code">📋 Copy</button>
+          </div>
+          <div class="code-content">
+            <pre id="scatter-code"><span class="code-comment">// Scatter plot with 2D sonification</span>
+<span class="code-comment">// X values → stereo pan (spatial position)</span>
+<span class="code-comment">// Y values → pitch (frequency)</span>
+
+<span class="code-keyword">const</span> dots = svg.<span class="code-function">selectAll</span>(<span class="code-string">'.dot'</span>)
+  .<span class="code-function">data</span>(data)
+  .<span class="code-function">enter</span>()
+  .<span class="code-function">append</span>(<span class="code-string">'circle'</span>)
+  .<span class="code-function">attr</span>(<span class="code-string">'cx'</span>, d => x(d.area))
+  .<span class="code-function">attr</span>(<span class="code-string">'cy'</span>, d => y(d.population))
+  .<span class="code-function">attr</span>(<span class="code-string">'r'</span>, <span class="code-number">6</span>);
+
+<span class="code-comment">// 2D mapping: X → pan, Y → pitch</span>
+<span class="code-keyword">const</span> sonification = dots.<span class="code-function">sonify</span>({
+  <span class="code-property">chartType</span>: <span class="code-string">'scatter'</span>,       <span class="code-comment">// Enable 2D mapping</span>
+  <span class="code-property">x</span>: <span class="code-string">'area'</span>,                   <span class="code-comment">// X data field → pan</span>
+  <span class="code-property">pitch</span>: {
+    <span class="code-property">field</span>: <span class="code-string">'population'</span>,       <span class="code-comment">// Y field → pitch</span>
+    <span class="code-property">range</span>: [<span class="code-number">220</span>, <span class="code-number">880</span>],
+    <span class="code-property">scale</span>: <span class="code-string">'pentatonic'</span>
+  },
+  <span class="code-property">duration</span>: <span class="code-number">300</span>
+});
+
+<span class="code-comment">// Points on the left → left speaker</span>
+<span class="code-comment">// Points on the right → right speaker</span>
+<span class="code-comment">// Higher Y values → higher pitch</span>
+sonification.<span class="code-function">play</span>();</pre>
+          </div>
+        </div>
+      </div>
+      
       <!-- Options (shared) -->
       <div class="card">
         <h2 class="card-title">⚙️ Sonification Options</h2>
@@ -648,6 +723,25 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
       { month: 'Nov', value: 55000 }, { month: 'Dec', value: 58000 }
     ];
     
+    // Scatter plot data: Cities with area (sq km) and population (thousands)
+    const scatterData = [
+      { name: 'Tokyo', x: 2194, y: 13960 },
+      { name: 'Delhi', x: 1484, y: 16787 },
+      { name: 'Shanghai', x: 6341, y: 24870 },
+      { name: 'São Paulo', x: 1521, y: 12325 },
+      { name: 'Mexico City', x: 1485, y: 9209 },
+      { name: 'Cairo', x: 3085, y: 9540 },
+      { name: 'Mumbai', x: 603, y: 12478 },
+      { name: 'Beijing', x: 16411, y: 21540 },
+      { name: 'Dhaka', x: 306, y: 8906 },
+      { name: 'Osaka', x: 225, y: 2691 },
+      { name: 'New York', x: 783, y: 8336 },
+      { name: 'Karachi', x: 3780, y: 14910 },
+      { name: 'Buenos Aires', x: 203, y: 3075 },
+      { name: 'Istanbul', x: 5461, y: 15460 },
+      { name: 'Lagos', x: 1171, y: 14368 }
+    ];
+    
     const months = barData.map(d => d.month);
     
     // ═══════════════════════════════════════════════════════════════
@@ -725,12 +819,60 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
       .attr('aria-label', d => `Expenses ${d.month}: $${d.value.toLocaleString()}`);
     
     // ═══════════════════════════════════════════════════════════════
+    // SCATTER PLOT
+    // ═══════════════════════════════════════════════════════════════
+    
+    const scatterContainer = document.getElementById('scatter-chart');
+    const scatterMargin = { top: 20, right: 30, bottom: 50, left: 70 };
+    const scatterWidth = scatterContainer.clientWidth - scatterMargin.left - scatterMargin.right;
+    const scatterHeight = 320 - scatterMargin.top - scatterMargin.bottom;
+    
+    const scatterSvg = d3.select('#scatter-chart')
+      .append('svg')
+      .attr('width', scatterWidth + scatterMargin.left + scatterMargin.right)
+      .attr('height', scatterHeight + scatterMargin.top + scatterMargin.bottom)
+      .append('g')
+      .attr('transform', `translate(${scatterMargin.left},${scatterMargin.top})`);
+    
+    const xScatter = d3.scaleLinear()
+      .domain([0, d3.max(scatterData, d => d.x) * 1.1])
+      .range([0, scatterWidth]);
+    
+    const yScatter = d3.scaleLinear()
+      .domain([0, d3.max(scatterData, d => d.y) * 1.1])
+      .range([scatterHeight, 0]);
+    
+    scatterSvg.append('g').attr('class', 'grid').call(d3.axisLeft(yScatter).tickSize(-scatterWidth).tickFormat(''));
+    scatterSvg.append('g').attr('class', 'grid').call(d3.axisBottom(xScatter).tickSize(-scatterHeight).tickFormat('')).attr('transform', `translate(0,${scatterHeight})`);
+    scatterSvg.append('g').attr('class', 'axis').attr('transform', `translate(0,${scatterHeight})`).call(d3.axisBottom(xScatter).ticks(6).tickFormat(d => `${d/1000}k km²`));
+    scatterSvg.append('g').attr('class', 'axis').call(d3.axisLeft(yScatter).ticks(5).tickFormat(d => `${d/1000}M`));
+    
+    // Axis labels
+    scatterSvg.append('text')
+      .attr('x', scatterWidth / 2).attr('y', scatterHeight + 40)
+      .attr('text-anchor', 'middle').attr('fill', 'var(--text-muted)').attr('font-size', '12px')
+      .text('City Area (km²)');
+    
+    scatterSvg.append('text')
+      .attr('transform', 'rotate(-90)').attr('x', -scatterHeight / 2).attr('y', -55)
+      .attr('text-anchor', 'middle').attr('fill', 'var(--text-muted)').attr('font-size', '12px')
+      .text('Population');
+    
+    const scatterDots = scatterSvg.selectAll('.scatter-dot')
+      .data(scatterData).enter().append('circle')
+      .attr('class', 'scatter-dot')
+      .attr('cx', d => xScatter(d.x)).attr('cy', d => yScatter(d.y)).attr('r', 7)
+      .attr('fill', '#f59e0b')
+      .attr('aria-label', d => `${d.name}: Area ${d.x.toLocaleString()} km², Population ${(d.y * 1000).toLocaleString()}`);
+    
+    // ═══════════════════════════════════════════════════════════════
     // SONIFICATION
     // ═══════════════════════════════════════════════════════════════
     
     let barSonification = null;
     let revenueSonification = null;
     let expensesSonification = null;
+    let scatterSonification = null;
     let currentMode = 'continuous';
     
     function getOptions() {
@@ -783,9 +925,29 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
       expensesSonification.setSpeed(opts.speed);
     }
     
+    function createScatterSonification() {
+      if (scatterSonification) scatterSonification.destroy();
+      const opts = getOptions();
+      
+      scatterSonification = scatterDots.sonify({
+        chartType: 'scatter',  // Enable 2D mapping: X → pan, Y → pitch
+        x: 'x',                // X data field maps to stereo pan
+        pitch: { field: 'y', range: [220, 880], scale: opts.scale },
+        duration: opts.duration + 100,  // Slightly longer for exploration
+        gap: 80,
+        instrument: opts.instrument,
+        mode: 'discrete',
+        markers: { start: true, end: true }
+      });
+      
+      scatterSonification.setSpeed(opts.speed);
+      return scatterSonification;
+    }
+    
     // Initial creation
     createBarSonification();
     createLineSonifications();
+    createScatterSonification();
     
     // ═══════════════════════════════════════════════════════════════
     // UI HANDLERS
@@ -793,6 +955,7 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
     
     const barStatus = document.getElementById('bar-status');
     const lineStatus = document.getElementById('line-status');
+    const scatterStatus = document.getElementById('scatter-status');
     
     function updateStatus(el, msg, playing = false) {
       el.textContent = msg;
@@ -816,6 +979,7 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
         barSonification?.stop();
         revenueSonification?.stop();
         expensesSonification?.stop();
+        scatterSonification?.stop();
       });
     });
     
@@ -864,6 +1028,26 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
       updateStatus(lineStatus, 'Stopped');
     });
     
+    // Scatter plot controls
+    document.getElementById('scatter-playBtn').addEventListener('click', () => {
+      if (!scatterSonification) createScatterSonification();
+      scatterSonification.play();
+      updateStatus(scatterStatus, 'Playing scatter plot - listen for spatial positioning...', true);
+    });
+    
+    document.getElementById('scatter-pauseBtn').addEventListener('click', () => {
+      scatterSonification?.pause();
+      updateStatus(scatterStatus, 'Paused');
+    });
+    
+    document.getElementById('scatter-stopBtn').addEventListener('click', () => {
+      scatterSonification?.stop();
+      updateStatus(scatterStatus, 'Stopped');
+    });
+    
+    document.getElementById('scatter-prevBtn').addEventListener('click', () => scatterSonification?.previous());
+    document.getElementById('scatter-nextBtn').addEventListener('click', () => scatterSonification?.next());
+    
     // Mode toggle
     document.querySelectorAll('.mode-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -883,11 +1067,13 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
     document.getElementById('scaleSelect').addEventListener('change', () => {
       createBarSonification();
       createLineSonifications();
+      createScatterSonification();
     });
     
     document.getElementById('instrumentSelect').addEventListener('change', () => {
       createBarSonification();
       createLineSonifications();
+      createScatterSonification();
     });
     
     document.getElementById('speedSlider').addEventListener('input', (e) => {
@@ -896,18 +1082,21 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
       barSonification?.setSpeed(speed);
       revenueSonification?.setSpeed(speed);
       expensesSonification?.setSpeed(speed);
+      scatterSonification?.setSpeed(speed);
     });
     
     document.getElementById('durationSlider').addEventListener('input', (e) => {
       document.getElementById('durationValue').textContent = `${e.target.value}ms`;
       createBarSonification();
       createLineSonifications();
+      createScatterSonification();
     });
     
     // Hover feedback
     bars.on('mouseenter', (e, d) => updateStatus(barStatus, `${d.month}: $${d.value.toLocaleString()}`));
     revenueDots.on('mouseenter', (e, d) => updateStatus(lineStatus, `Revenue ${d.month}: $${d.value.toLocaleString()}`));
     expensesDots.on('mouseenter', (e, d) => updateStatus(lineStatus, `Expenses ${d.month}: $${d.value.toLocaleString()}`));
+    scatterDots.on('mouseenter', (e, d) => updateStatus(scatterStatus, `${d.name}: Area ${d.x.toLocaleString()} km², Pop ${(d.y/1000).toFixed(1)}M`));
     
     // Copy code buttons
     document.querySelectorAll('.copy-btn').forEach(btn => {
@@ -928,12 +1117,17 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
       if (e.target.matches('button, input, select')) return;
       
       const isBarActive = document.getElementById('bar-container').classList.contains('active');
+      const isLineActive = document.getElementById('line-container').classList.contains('active');
+      const isScatterActive = document.getElementById('scatter-container').classList.contains('active');
       
       if (e.key === ' ') {
         e.preventDefault();
         if (isBarActive) {
           barSonification?.toggle();
           updateStatus(barStatus, barSonification?.isPlaying() ? 'Playing...' : 'Paused', barSonification?.isPlaying());
+        } else if (isScatterActive) {
+          scatterSonification?.toggle();
+          updateStatus(scatterStatus, scatterSonification?.isPlaying() ? 'Playing...' : 'Paused', scatterSonification?.isPlaying());
         } else {
           if (revenueSonification?.isPlaying()) {
             revenueSonification.toggle();
@@ -946,7 +1140,7 @@ sonification.<span class="code-function">setMode</span>(<span class="code-string
         }
       }
       
-      if ((e.key === 'm' || e.key === 'M') && !isBarActive) {
+      if ((e.key === 'm' || e.key === 'M') && isLineActive) {
         currentMode = currentMode === 'continuous' ? 'discrete' : 'continuous';
         document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === currentMode));
         createLineSonifications();

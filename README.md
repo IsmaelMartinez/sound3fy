@@ -10,6 +10,7 @@
 
 - 🎵 **Musical Scales** - Pentatonic, major, minor, blues, chromatic
 - 📈 **Line Chart Support** - Continuous frequency sweep for trends
+- ⚬ **Scatter Plot Support** - 2D mapping (X→pan, Y→pitch)
 - ⌨️ **Full Keyboard Navigation** - Arrow keys, Home/End, speed controls
 - 🔈 **Screen Reader Support** - ARIA live regions announce values
 - 🎯 **Hover to Hear** - Mouse over any data point to hear its value
@@ -249,6 +250,24 @@ d3.selectAll(".dot")
     duration: 200,
     gap: 30
   });
+```
+
+### Scatter Plot (2D Mapping)
+
+```javascript
+// X values → stereo pan (left/right position)
+// Y values → pitch (low/high frequency)
+d3.selectAll(".dot")
+  .data(data)
+  .sonify({
+    chartType: "scatter",
+    x: "area",                    // X data field → pan
+    pitch: { field: "population" } // Y data field → pitch
+  });
+
+// Points on the left play from the left speaker
+// Points on the right play from the right speaker
+// Higher Y values = higher pitch
 ```
 
 ### Multi-Series

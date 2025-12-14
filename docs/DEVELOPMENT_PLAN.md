@@ -155,29 +155,38 @@ d3.selectAll("rect")
 
 ---
 
-## Phase 5: Chart-Specific Handlers 🚧
+## Phase 5: Chart-Specific Handlers ✅
 
 **Goal:** Optimized handling for common chart types  
-**Status:** In Progress
+**Status:** Complete (core chart types)
 
 | Task | Status | Notes |
 |------|--------|-------|
 | Bar chart handler (discrete tones) | ✅ | `mode: 'discrete'` |
 | Line chart handler (continuous sweep) | ✅ | `mode: 'continuous'` |
-| Scatter plot handler (2D mapping) | ⏳ | Planned |
-| Area chart handler | ⏳ | Planned |
+| Scatter plot handler (2D mapping) | ✅ | `chartType: 'scatter'`, X→pan, Y→pitch |
+| Area chart handler | ⏳ | Low priority, similar to line |
 | Auto-detection of chart type | ⏳ | Planned for v1.0 |
-| Chart-specific announcements | ✅ | Trend descriptions |
+| Chart-specific announcements | ✅ | Trend descriptions, X/Y values for scatter |
 
-**Deliverable:** 🚧 Partially complete
+**Deliverable:** ✅ Complete for bar, line, and scatter
 
 ```javascript
-// Phase 5 API (achieved for bar and line)
+// Bar chart - discrete notes
 d3.selectAll("rect")
-  .sonify({ mode: "discrete" });  // Bar charts
+  .sonify({ mode: "discrete" });
 
+// Line chart - smooth frequency sweep  
 d3.selectAll("circle")
-  .sonify({ mode: "continuous" });  // Line charts - smooth frequency sweep
+  .sonify({ mode: "continuous" });
+
+// Scatter plot - 2D mapping (X→pan, Y→pitch)
+d3.selectAll("circle")
+  .sonify({ 
+    chartType: "scatter",
+    x: "xField",           // X data → stereo pan
+    pitch: { field: "yField" }  // Y data → pitch
+  });
 ```
 
 ---
@@ -251,11 +260,11 @@ d3.selectAll("circle")
 | 2. D3 Integration | ✅ Complete | 100% |
 | 3. Accessibility | ✅ Complete | 100% |
 | 4. Advanced Mappings | ✅ Complete | 95% |
-| 5. Chart Handlers | 🚧 In Progress | 60% |
+| 5. Chart Handlers | ✅ Complete | 90% |
 | 6. User Testing | ⏳ Planned | 0% |
-| 7. Polish & Docs | 🚧 In Progress | 60% |
+| 7. Polish & Docs | 🚧 In Progress | 70% |
 
-**Overall Progress: ~80%**
+**Overall Progress: ~85%**
 
 ### ARIA Compliance ✅
 - `role="graphics-symbol"` on data points

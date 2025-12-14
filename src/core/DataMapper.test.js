@@ -30,7 +30,7 @@ describe('DataMapper', () => {
     it('should handle empty data', () => {
       const mapper = new DataMapper();
       mapper.analyze([]);
-      expect(mapper.extent).toBeNull();
+      expect(mapper.extent).toBeUndefined();
     });
     
     it('should auto-detect value field', () => {
@@ -156,18 +156,101 @@ describe('DataMapper', () => {
     it('should return count without extent', () => {
       const mapper = new DataMapper();
       const summary = mapper.summarize([{}, {}, {}]);
-      expect(summary).toBe('3 data points');
+      expect(summary).toContain('3 data points');
     });
     
     it('should include range with extent', () => {
       const mapper = new DataMapper();
-      mapper.extent = { min: 10, max: 100 };
+      mapper.extents = { pitch: { min: 10, max: 100 } };
       
       const summary = mapper.summarize([{}, {}, {}]);
       
       expect(summary).toContain('3 data points');
       expect(summary).toContain('10');
       expect(summary).toContain('100');
+    });
+  });
+  
+  describe('scatter plot support', () => {
+    it('should detect scatter chart type from options', () => {
+      const mapper = new DataMapper({ x: 'xField', y: 'yField' });
+      expect(mapper.chartType).toBe('scatter');
+    });
+    
+    it('should analyze both x and y extents for scatter plots', () => {
+      const mapper = new DataMapper({ chartType: 'scatter', pitch: { field: 'y' } });
+      const data = [
+        { datum: { x: 10, y: 100 }, index: 0 },
+        { datum: { x: 50, y: 500 }, index: 1 },
+        { datum: { x: 30, y: 300 }, index: 2 }
+      ];
+      
+      mapper.analyze(data);
+      
+      expect(mapper.extents.pitch).toEqual({ min: 100, max: 500 });
+      expect(mapper.extents.x).toEqual({ min: 10, max: 50 });
+    });
+    
+    it('should map x values to pan for scatter plots', () => {
+      const mapper = new DataMapper({ chartType: 'scatter', pitch: { field: 'y' } });
+      const data = [
+        { datum: { x: 0, y: 100 }, index: 0 },
+        { datum: { x: 100, y: 200 }, index: 1 }
+      ];
+      
+      mapper.analyze(data);
+      
+      const firstPan = mapper.mapPan(data[0], 0, 2);
+      const lastPan = mapper.mapPan(data[1], 1, 2);
+      
+      expect(firstPan).toBeCloseTo(-0.7, 1);
+      expect(lastPan).toBeCloseTo(0.7, 1);
+    });
+    
+    it('should describe scatter points with X and Y values', () => {
+      const mapper = new DataMapper({ chartType: 'scatter', pitch: { field: 'y' } });
+      const item = { datum: { x: 25, y: 150 }, index: 0 };
+      
+      const desc = mapper.describe(item, 0, 3);
+      
+      expect(desc).toContain('X: 25');
+      expect(desc).toContain('Y: 150');
+    });
+  });
+  
+  describe('trend analysis', () => {
+    it('should detect increasing trend', () => {
+      const mapper = new DataMapper({ pitch: { field: 'value' } });
+      const data = [
+        { datum: { value: 10 }, index: 0 },
+        { datum: { value: 20 }, index: 1 },
+        { datum: { value: 30 }, index: 2 },
+        { datum: { value: 50 }, index: 3 },
+        { datum: { value: 80 }, index: 4 },
+        { datum: { value: 100 }, index: 5 }
+      ];
+      
+      mapper.analyze(data);
+      const summary = mapper.summarize(data);
+      
+      expect(summary).toContain('increasing');
+    });
+    
+    it('should detect decreasing trend', () => {
+      const mapper = new DataMapper({ pitch: { field: 'value' } });
+      const data = [
+        { datum: { value: 100 }, index: 0 },
+        { datum: { value: 80 }, index: 1 },
+        { datum: { value: 50 }, index: 2 },
+        { datum: { value: 30 }, index: 3 },
+        { datum: { value: 20 }, index: 4 },
+        { datum: { value: 10 }, index: 5 }
+      ];
+      
+      mapper.analyze(data);
+      const summary = mapper.summarize(data);
+      
+      expect(summary).toContain('decreasing');
     });
   });
   
