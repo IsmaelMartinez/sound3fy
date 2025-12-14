@@ -782,9 +782,8 @@ sonification.<span class="code-function">play</span>();</pre>
     // LINE CHART
     // ═══════════════════════════════════════════════════════════════
     
-    const lineContainer = document.getElementById('line-chart');
     const lineMargin = { top: 20, right: 30, bottom: 40, left: 60 };
-    const lineWidth = lineContainer.clientWidth - lineMargin.left - lineMargin.right;
+    const lineWidth = barWidth; // Use same width as bar chart (it's visible)
     const lineHeight = 320 - lineMargin.top - lineMargin.bottom;
     
     const lineSvg = d3.select('#line-chart')
@@ -822,9 +821,8 @@ sonification.<span class="code-function">play</span>();</pre>
     // SCATTER PLOT
     // ═══════════════════════════════════════════════════════════════
     
-    const scatterContainer = document.getElementById('scatter-chart');
     const scatterMargin = { top: 20, right: 30, bottom: 50, left: 70 };
-    const scatterWidth = scatterContainer.clientWidth - scatterMargin.left - scatterMargin.right;
+    const scatterWidth = barWidth - 10; // Use same width as bar chart
     const scatterHeight = 320 - scatterMargin.top - scatterMargin.bottom;
     
     const scatterSvg = d3.select('#scatter-chart')
