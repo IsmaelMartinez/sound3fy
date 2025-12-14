@@ -156,15 +156,5 @@ describe('AudioEngine', () => {
     });
   });
   
-  describe('static scales', () => {
-    it('should return available scale names', () => {
-      const scales = AudioEngine.scales;
-      expect(scales).toContain('pentatonic');
-      expect(scales).toContain('major');
-      expect(scales).toContain('minor');
-      expect(scales).toContain('chromatic');
-      expect(scales).toContain('blues');
-    });
-  });
 });
 

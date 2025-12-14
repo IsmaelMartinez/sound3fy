@@ -127,8 +127,6 @@ export class AudioEngine {
     if (this.context?.state !== 'closed') this.context?.close();
     this.context = null;
   }
-  
-  static get scales() { return Object.keys(SCALES); }
 }
 
 export default AudioEngine;

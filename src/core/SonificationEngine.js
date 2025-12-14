@@ -54,9 +54,7 @@ export class SonificationEngine {
     return this;
   }
   
-  // ─────────────────────────────────────────────────────────────
-  // PLAYBACK
-  // ─────────────────────────────────────────────────────────────
+  // --- PLAYBACK ---
   
   async play() {
     if (this.playing && !this.paused) return this;
@@ -105,9 +103,7 @@ export class SonificationEngine {
   setSpeed(s) { this.speed = Math.max(0.25, Math.min(4, s)); return this; }
   setMode(m) { this.mode = m === 'continuous' ? 'continuous' : 'discrete'; return this; }
   
-  // ─────────────────────────────────────────────────────────────
-  // DISCRETE MODE
-  // ─────────────────────────────────────────────────────────────
+  // --- DISCRETE MODE ---
   
   playDiscrete() {
     if (!this.playing || this.paused) return;
@@ -136,9 +132,7 @@ export class SonificationEngine {
     this.updateFocus(item.element);
   }
   
-  // ─────────────────────────────────────────────────────────────
-  // CONTINUOUS MODE
-  // ─────────────────────────────────────────────────────────────
+  // --- CONTINUOUS MODE ---
   
   playContinuous() {
     if (!this.playing || this.paused || !this.data.length) return;
@@ -215,9 +209,7 @@ export class SonificationEngine {
     this.clearFocus();
   }
   
-  // ─────────────────────────────────────────────────────────────
-  // NAVIGATION
-  // ─────────────────────────────────────────────────────────────
+  // --- NAVIGATION ---
   
   next() {
     this.audio.init();
@@ -236,9 +228,7 @@ export class SonificationEngine {
   first() { this.audio.init(); this.index = 0; this.playPoint(0); return this; }
   last() { this.audio.init(); this.index = this.data.length - 1; this.playPoint(this.index); return this; }
   
-  // ─────────────────────────────────────────────────────────────
-  // ACCESSIBILITY
-  // ─────────────────────────────────────────────────────────────
+  // --- ACCESSIBILITY ---
   
   setupKeyboard() {
     const self = this;
@@ -309,9 +299,7 @@ export class SonificationEngine {
     this.selection?.each(function() { this.classList.remove('sonify-focused'); });
   }
   
-  // ─────────────────────────────────────────────────────────────
-  // STATE & CLEANUP
-  // ─────────────────────────────────────────────────────────────
+  // --- STATE & CLEANUP ---
   
   isPlaying() { return this.playing && !this.paused; }
   isPaused() { return this.paused; }

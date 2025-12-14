@@ -9,6 +9,12 @@ export class DataMapper {
     this.options = options;
     this.extents = {};
     this.chartType = options.chartType || (options.x ? 'scatter' : options.mode === 'continuous' ? 'line' : 'bar');
+    this._audio = null; // Lazy init
+  }
+  
+  get audio() {
+    if (!this._audio) this._audio = new AudioEngine();
+    return this._audio;
   }
   
   /** Analyze dataset to find value extents */
@@ -58,11 +64,8 @@ export class DataMapper {
       ? (value - extent.min) / (extent.max - extent.min)
       : 0.5;
     
-    // Use AudioEngine static-like approach
-    const audio = new AudioEngine();
-    
     return {
-      frequency: audio.valueToFrequency(normalized, {
+      frequency: this.audio.valueToFrequency(normalized, {
         minFreq: range[0],
         maxFreq: range[1],
         scale: config.scale || 'pentatonic'
