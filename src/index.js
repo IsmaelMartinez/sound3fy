@@ -14,7 +14,7 @@ const DEFAULTS = {
   gap: 50,
   mode: 'discrete',
   envelope: { attack: 0.02, decay: 0.05, sustain: 0.7, release: 0.1 },
-  markers: { start: true, end: true },
+  markers: { start: false, end: false },
   accessibility: { keyboard: true, announce: true, focus: true, hover: true },
   autoPlay: false
 };

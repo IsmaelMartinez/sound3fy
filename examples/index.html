@@ -891,8 +891,7 @@ sonification.<span class="code-function">play</span>();</pre>
         duration: opts.duration,
         gap: 50,
         instrument: opts.instrument,
-        mode: 'discrete',
-        markers: { start: true, end: true }
+        mode: 'discrete'
       });
       
       barSonification.setSpeed(opts.speed);
@@ -909,8 +908,7 @@ sonification.<span class="code-function">play</span>();</pre>
         duration: opts.duration,
         gap: 30,
         instrument: opts.instrument,
-        mode: currentMode,
-        markers: { start: true, end: true }
+        mode: currentMode
       };
       
       revenueSonification = revenueDots.sonify(commonOptions);
@@ -934,8 +932,7 @@ sonification.<span class="code-function">play</span>();</pre>
         duration: opts.duration + 100,  // Slightly longer for exploration
         gap: 80,
         instrument: opts.instrument,
-        mode: 'discrete',
-        markers: { start: true, end: true }
+        mode: 'discrete'
       });
       
       scatterSonification.setSpeed(opts.speed);

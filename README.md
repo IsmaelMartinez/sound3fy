@@ -93,7 +93,6 @@ d3.selectAll(".dot").sonify({
   duration: 200,
   gap: 50,
   mode: "discrete",  // or "continuous"
-  markers: { start: true, end: true },
   accessibility: { keyboard: true, announce: true, focus: true, hover: true }
 }
 ```
