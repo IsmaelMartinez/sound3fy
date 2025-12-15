@@ -3,30 +3,33 @@
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { SonificationEngine } from './SonificationEngine.js';
 
-// Mock AudioEngine
-vi.mock('./AudioEngine.js', () => ({
-  AudioEngine: vi.fn().mockImplementation(() => ({
-    init: vi.fn().mockReturnThis(),
-    resume: vi.fn().mockResolvedValue(undefined),
-    playTone: vi.fn().mockReturnThis(),
-    playMarker: vi.fn().mockReturnThis(),
-    getContext: vi.fn().mockReturnValue({ currentTime: 0 }),
-    getMasterGain: vi.fn().mockReturnValue({ connect: vi.fn() }),
-    destroy: vi.fn()
-  }))
-}));
+// Mock AudioEngine - must be before import
+vi.mock('./AudioEngine.js', () => {
+  const AudioEngine = function() {
+    this.init = vi.fn().mockReturnThis();
+    this.resume = vi.fn().mockResolvedValue(undefined);
+    this.playTone = vi.fn().mockReturnThis();
+    this.playMarker = vi.fn().mockReturnThis();
+    this.getContext = vi.fn().mockReturnValue({ currentTime: 0 });
+    this.getMasterGain = vi.fn().mockReturnValue({ connect: vi.fn() });
+    this.destroy = vi.fn();
+  };
+  return { AudioEngine };
+});
 
 // Mock DataMapper
-vi.mock('./DataMapper.js', () => ({
-  DataMapper: vi.fn().mockImplementation(() => ({
-    analyze: vi.fn(),
-    map: vi.fn().mockReturnValue({ frequency: 440, volume: 0.5, pan: 0, duration: 0.2 }),
-    describe: vi.fn().mockReturnValue('Point 1 of 3'),
-    summarize: vi.fn().mockReturnValue('3 data points')
-  }))
-}));
+vi.mock('./DataMapper.js', () => {
+  const DataMapper = function() {
+    this.analyze = vi.fn();
+    this.map = vi.fn().mockReturnValue({ frequency: 440, volume: 0.5, pan: 0, duration: 0.2 });
+    this.describe = vi.fn().mockReturnValue('Point 1 of 3');
+    this.summarize = vi.fn().mockReturnValue('3 data points');
+  };
+  return { DataMapper };
+});
+
+import { SonificationEngine } from './SonificationEngine.js';
 
 // Mock DOM
 const mockElement = {
