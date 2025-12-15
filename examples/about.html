@@ -11,10 +11,10 @@
     :root {
       --bg: #0a0a0f;
       --bg-card: #14141f;
-      --accent: #8b5cf6;
-      --accent-green: #10b981;
-      --text: #e2e8f0;
-      --text-muted: #94a3b8;
+      --accent: #a78bfa;
+      --accent-green: #34d399;
+      --text: #f1f5f9;
+      --text-muted: #cbd5e1;
       --border: #1e1e32;
     }
     
@@ -204,21 +204,42 @@
       color: var(--accent);
       text-decoration: none;
     }
+    
+    .skip-link {
+      position: absolute;
+      top: -100px;
+      left: 0;
+      background: var(--accent);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      z-index: 100;
+      text-decoration: none;
+      border-radius: 0 0 0.5rem 0;
+    }
+    .skip-link:focus {
+      top: 0;
+    }
+    
+    a:focus, .btn:focus {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
   </style>
 </head>
 <body>
+  <a href="#main" class="skip-link">Skip to main content</a>
   <div class="container">
     <header>
-      <div class="logo">sound3fy</div>
+      <h1 class="logo">sound3fy</h1>
       <p class="tagline">Making data visualizations accessible through sound</p>
-      <nav>
+      <nav aria-label="Main navigation">
         <a href="index.html">Demo</a>
-        <a href="about.html" class="active">Why?</a>
+        <a href="about.html" class="active" aria-current="page">Why?</a>
         <a href="https://github.com/IsmaelMartinez/sound3fy">GitHub</a>
       </nav>
     </header>
     
-    <main>
+    <main id="main">
       <h2>The Problem</h2>
       <p>Data visualizations are fundamentally visual. When a sighted person views a chart, they instantly perceive comparisons, trends, and patterns. But what about the hundreds of millions who can't see them?</p>
       
@@ -259,13 +280,16 @@
       <p>While sonification libraries exist, none integrate with D3.js—the most popular data visualization library powering millions of charts on the web.</p>
       
       <table>
-        <tr>
-          <th>Solution</th>
-          <th>D3.js Native</th>
-          <th>Keyboard</th>
-          <th>Screen Reader</th>
-          <th>Open Source</th>
-        </tr>
+        <thead>
+          <tr>
+            <th scope="col">Solution</th>
+            <th scope="col">D3.js Native</th>
+            <th scope="col">Keyboard</th>
+            <th scope="col">Screen Reader</th>
+            <th scope="col">Open Source</th>
+          </tr>
+        </thead>
+        <tbody>
         <tr>
           <td>Chart2Music</td>
           <td class="cross">✗</td>
@@ -294,6 +318,7 @@
           <td class="check">✓</td>
           <td class="check">✓</td>
         </tr>
+        </tbody>
       </table>
       
       <h2>Our Approach</h2>
