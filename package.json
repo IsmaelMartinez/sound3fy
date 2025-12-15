@@ -1,6 +1,6 @@
 {
   "name": "sound3fy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Make D3.js visualizations accessible through sound",
   "main": "dist/sound3fy.js",
   "module": "dist/sound3fy.esm.js",
