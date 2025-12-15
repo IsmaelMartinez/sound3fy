@@ -29,6 +29,8 @@ Plan to make sound3fy production-ready before public announcement.
 - [x] `master` branch deleted
 - [x] Branch protection enabled (requires `test` and `lighthouse` checks)
 - [x] Deploy workflow updated to trigger on `main`
+- [x] GitHub Pages environment configured for `main`
+- [x] All CI workflows passing (CI, Lighthouse, Deploy)
 
 ## 🔮 Future (Post-Announcement)
 
