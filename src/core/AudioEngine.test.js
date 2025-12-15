@@ -29,8 +29,8 @@ const mockAudioContext = {
   destination: {}
 };
 
-global.AudioContext = vi.fn(() => mockAudioContext);
-global.webkitAudioContext = vi.fn(() => mockAudioContext);
+global.AudioContext = vi.fn(function() { return mockAudioContext; });
+global.webkitAudioContext = vi.fn(function() { return mockAudioContext; });
 
 describe('AudioEngine', () => {
   let engine;

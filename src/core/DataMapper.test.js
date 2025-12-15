@@ -6,11 +6,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DataMapper } from './DataMapper.js';
 
 // Mock AudioEngine
-vi.mock('./AudioEngine.js', () => ({
-  AudioEngine: vi.fn().mockImplementation(() => ({
-    valueToFrequency: vi.fn((v, opts) => opts.minFreq + v * (opts.maxFreq - opts.minFreq))
-  }))
-}));
+vi.mock('./AudioEngine.js', () => {
+  const AudioEngine = function() {
+    this.valueToFrequency = vi.fn((v, opts) => opts.minFreq + v * (opts.maxFreq - opts.minFreq));
+  };
+  return { AudioEngine };
+});
 
 describe('DataMapper', () => {
   describe('analyze()', () => {
