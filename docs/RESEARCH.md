@@ -23,23 +23,12 @@ Plan to make sound3fy production-ready before public announcement.
 - [x] CI badges in README
 - [x] Created `main` branch
 
-## ⚠️ Manual Steps Required (GitHub UI)
+## ✅ GitHub Setup Complete
 
-### 1. Change Default Branch
-Go to **Settings → General → Default Branch** and change from `master` to `main`.
-
-### 2. Delete `master` Branch
-After changing default, go to **Code → Branches** and delete `master`.
-
-### 3. Set Up Branch Protection
-Go to **Settings → Branches → Add rule**:
-- Branch name: `main`
-- [x] Require a pull request before merging
-- [x] Require status checks to pass (select "test" and "lighthouse")
-- [x] Require branches to be up to date
-
-### 4. Update GitHub Pages Source
-Go to **Settings → Pages** and ensure source is `main` branch.
+- [x] Default branch changed to `main`
+- [x] `master` branch deleted
+- [x] Branch protection enabled (requires `test` and `lighthouse` checks)
+- [x] Deploy workflow updated to trigger on `main`
 
 ## 🔮 Future (Post-Announcement)
 
