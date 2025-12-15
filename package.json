@@ -31,16 +31,16 @@
     "screen-reader",
     "web-audio-api"
   ],
-  "author": "",
+  "author": "Ismael Martinez <ismaelmartinez@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/sound3fy"
+    "url": "https://github.com/IsmaelMartinez/sound3fy"
   },
   "bugs": {
-    "url": "https://github.com/your-username/sound3fy/issues"
+    "url": "https://github.com/IsmaelMartinez/sound3fy/issues"
   },
-  "homepage": "https://github.com/your-username/sound3fy#readme",
+  "homepage": "https://ismaelmartinez.github.io/sound3fy/",
   "peerDependencies": {
     "d3": ">=5.0.0"
   },
