@@ -12,33 +12,34 @@ Plan to make sound3fy production-ready before public announcement.
 - [x] CONTRIBUTING.md
 - [x] Live demo on GitHub Pages
 - [x] Renovate for dependency updates
+- [x] Remove legacy `html/` folder
+- [x] Add .editorconfig
+- [x] Add CI workflow (tests on every PR)
+- [x] Add Lighthouse CI (accessibility audits)
+- [x] CODE_OF_CONDUCT.md
+- [x] SECURITY.md
+- [x] Issue templates (bug, feature, accessibility)
+- [x] PR template with accessibility checklist
+- [x] CI badges in README
+- [x] Created `main` branch
 
-## 🔧 In Progress
+## ⚠️ Manual Steps Required (GitHub UI)
 
-### Repository Hygiene
+### 1. Change Default Branch
+Go to **Settings → General → Default Branch** and change from `master` to `main`.
 
-- [ ] **Rename master → main** - Modern default branch naming
-- [ ] **Remove legacy `html/` folder** - Old hackathon prototype
-- [ ] **Add .editorconfig** - Consistent formatting across editors
+### 2. Delete `master` Branch
+After changing default, go to **Code → Branches** and delete `master`.
 
-### CI/CD
+### 3. Set Up Branch Protection
+Go to **Settings → Branches → Add rule**:
+- Branch name: `main`
+- [x] Require a pull request before merging
+- [x] Require status checks to pass (select "test" and "lighthouse")
+- [x] Require branches to be up to date
 
-- [ ] **Add test workflow** - Run tests on every PR
-- [ ] **Add Lighthouse CI** - Automated accessibility audits
-- [ ] **Branch protection** - Require tests to pass before merge
-
-### Documentation
-
-- [ ] **CODE_OF_CONDUCT.md** - Community standards
-- [ ] **SECURITY.md** - Vulnerability reporting
-- [ ] **Issue templates** - Bug reports, feature requests
-- [ ] **PR template** - Checklist for contributors
-
-### README Polish
-
-- [ ] **Add CI badge** - Show test status
-- [ ] **Remove RESEARCH.md link** - Point only to ADRs
-- [ ] **Add npm badge** - When published
+### 4. Update GitHub Pages Source
+Go to **Settings → Pages** and ensure source is `main` branch.
 
 ## 🔮 Future (Post-Announcement)
 
@@ -48,15 +49,5 @@ Plan to make sound3fy production-ready before public announcement.
 - [ ] More chart types (pie, area, heatmap)
 - [ ] Audio export (save as .wav)
 - [ ] Internationalization
-
----
-
-## Implementation Order
-
-1. Clean up repo (remove legacy, add configs)
-2. Add CI workflows
-3. Add community files
-4. Update README
-5. Rename master → main (last, to not break anything)
 
 *See [ADRs](./adr/) for technical design decisions.*
