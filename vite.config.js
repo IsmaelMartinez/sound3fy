@@ -13,7 +13,8 @@ export default defineConfig({
       output: {
         globals: {
           d3: 'd3'
-        }
+        },
+        exports: 'named'
       }
     }
   },
