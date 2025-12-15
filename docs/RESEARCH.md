@@ -1,85 +1,62 @@
-# sound3fy Technical Design
+# Professional Roadmap
 
-## Architecture
+Plan to make sound3fy production-ready before public announcement.
 
-```
-D3.js Selection
-      │
-      ▼
-┌─────────────────────────────────────┐
-│        SonificationEngine           │
-│  - Playback (play/pause/stop)       │
-│  - Navigation (next/prev/seek)      │
-│  - Accessibility (keyboard, ARIA)   │
-└─────────────────┬───────────────────┘
-                  │
-       ┌──────────┴──────────┐
-       ▼                     ▼
-┌─────────────┐       ┌─────────────┐
-│ DataMapper  │       │ AudioEngine │
-│ - Analyze   │       │ - Web Audio │
-│ - Map data  │       │ - ADSR      │
-│ - Describe  │       │ - Scales    │
-└─────────────┘       └─────────────┘
-```
+## ✅ Completed
 
-## API
+- [x] Core functionality (bar, line, scatter charts)
+- [x] Keyboard navigation & screen reader support
+- [x] 70 unit tests passing
+- [x] ADRs documenting key decisions
+- [x] MIT License
+- [x] CONTRIBUTING.md
+- [x] Live demo on GitHub Pages
+- [x] Renovate for dependency updates
 
-```javascript
-// Minimal
-d3.selectAll(".bar").sonify({ pitch: "value" });
+## 🔧 In Progress
 
-// Full options
-selection.sonify({
-  pitch: { field: "value", range: [220, 880], scale: "pentatonic" },
-  volume: { field: "importance", range: [0.3, 0.8] },
-  pan: { range: [-0.7, 0.7] },
-  duration: 200,
-  gap: 50,
-  mode: "discrete",  // or "continuous"
-  chartType: "scatter",  // enables X→pan mapping
-  x: "xField"
-});
+### Repository Hygiene
 
-// Control
-sonify.play();
-sonify.pause();
-sonify.stop();
-sonify.next();
-sonify.previous();
-sonify.setSpeed(1.5);
-sonify.destroy();
-```
+- [ ] **Rename master → main** - Modern default branch naming
+- [ ] **Remove legacy `html/` folder** - Old hackathon prototype
+- [ ] **Add .editorconfig** - Consistent formatting across editors
 
-## Data Mapping
+### CI/CD
 
-| Data | Audio | Effect |
-|------|-------|--------|
-| Value | Pitch | Higher value = higher frequency |
-| Position | Pan | Left to right = left to right speaker |
-| Index | Time | Sequential playback |
-| Category | Timbre | Different wave shapes |
+- [ ] **Add test workflow** - Run tests on every PR
+- [ ] **Add Lighthouse CI** - Automated accessibility audits
+- [ ] **Branch protection** - Require tests to pass before merge
 
-## Scales
+### Documentation
 
-| Scale | Intervals | Use |
-|-------|-----------|-----|
-| Pentatonic | 0,2,4,7,9 | Default, pleasant |
-| Major | 0,2,4,5,7,9,11 | Bright |
-| Minor | 0,2,3,5,7,8,10 | Serious |
-| Blues | 0,3,5,6,7,10 | Emphasis |
-| Chromatic | 0-11 | Precision |
-| Continuous | Linear | Smooth |
+- [ ] **CODE_OF_CONDUCT.md** - Community standards
+- [ ] **SECURITY.md** - Vulnerability reporting
+- [ ] **Issue templates** - Bug reports, feature requests
+- [ ] **PR template** - Checklist for contributors
 
-## Accessibility
+### README Polish
 
-- **WCAG 2.1**: 1.1.1, 1.3.1, 2.1.1, 4.1.2
-- **ARIA**: `role="graphics-symbol"`, `aria-label`, `aria-live`
-- **Keyboard**: Space, Arrows, Home/End, +/-, M, Esc
-- **Preferences**: `prefers-contrast`, `prefers-reduced-motion`
+- [ ] **Add CI badge** - Show test status
+- [ ] **Remove RESEARCH.md link** - Point only to ADRs
+- [ ] **Add npm badge** - When published
 
-## References
+## 🔮 Future (Post-Announcement)
 
-- [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
-- [WCAG 2.1](https://www.w3.org/WAI/WCAG21/quickref/)
-- [Why sound3fy?](https://ismaelmartinez.github.io/sound3fy/about.html)
+- [ ] Publish to npm
+- [ ] TypeScript type definitions (.d.ts)
+- [ ] Observable notebook example
+- [ ] More chart types (pie, area, heatmap)
+- [ ] Audio export (save as .wav)
+- [ ] Internationalization
+
+---
+
+## Implementation Order
+
+1. Clean up repo (remove legacy, add configs)
+2. Add CI workflows
+3. Add community files
+4. Update README
+5. Rename master → main (last, to not break anything)
+
+*See [ADRs](./adr/) for technical design decisions.*

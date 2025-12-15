@@ -2,6 +2,8 @@
 
 > Make D3.js visualizations accessible through sound
 
+[![CI](https://github.com/IsmaelMartinez/sound3fy/actions/workflows/ci.yml/badge.svg)](https://github.com/IsmaelMartinez/sound3fy/actions/workflows/ci.yml)
+[![Lighthouse](https://github.com/IsmaelMartinez/sound3fy/actions/workflows/lighthouse.yml/badge.svg)](https://github.com/IsmaelMartinez/sound3fy/actions/workflows/lighthouse.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[▶ Live Demo](https://ismaelmartinez.github.io/sound3fy/)** · **[Why?](https://ismaelmartinez.github.io/sound3fy/about.html)**
@@ -129,8 +131,7 @@ npm test  # 70 tests
 
 ## Documentation
 
-- [Research](./docs/RESEARCH.md) - Architecture and design
-- [ADRs](./docs/adr/) - Key decisions
+- [Architecture Decisions](./docs/adr/) - Key design decisions
 
 ## Help Wanted
 
