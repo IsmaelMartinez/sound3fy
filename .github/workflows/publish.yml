@@ -7,7 +7,7 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    # environment: npm  # Temporarily removed for debugging
+    environment: npm  # Must match npm Trusted Publishing config
     permissions:
       contents: read
       id-token: write  # Required for npm Trusted Publishing (OIDC)
@@ -16,7 +16,7 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'  # npm 11.x required for Trusted Publishing
           registry-url: 'https://registry.npmjs.org'
       
       - run: npm ci
