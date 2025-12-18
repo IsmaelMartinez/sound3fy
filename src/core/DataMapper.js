@@ -84,7 +84,7 @@ export class DataMapper {
     const field = config.field;
     const value = typeof field === 'function' ? field(item.datum, item.index) : item.datum?.[field];
     const extent = this.extents.pitch;
-    const range = config.range || [0.3, 0.8];
+    const range = config.range || [0.4, 0.7];
     
     if (!extent || extent.max === extent.min) return 0.5;
     const normalized = Math.max(0, Math.min(1, (value - extent.min) / (extent.max - extent.min)));

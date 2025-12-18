@@ -45,8 +45,8 @@ Have an idea? We'd love to hear it! Open an issue with:
 #### Development Setup
 
 ```bash
-# Clone your fork
-git clone https://github.com/IsmaelMartinez/sound3fy.git
+# Clone your fork (replace YOUR_USERNAME with your GitHub username)
+git clone https://github.com/YOUR_USERNAME/sound3fy.git
 cd sound3fy
 
 # Install dependencies
