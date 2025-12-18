@@ -19,7 +19,7 @@ export default defineConfig({
     }
   },
   server: {
-    open: '/examples/basic/index.html'
+    open: '/examples/index.html'
   }
 });
 

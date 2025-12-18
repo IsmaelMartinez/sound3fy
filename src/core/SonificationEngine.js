@@ -117,6 +117,7 @@ export class SonificationEngine {
     const params = this.mapper.map(item, idx, this.data.length);
     params.duration /= this.speed;
     params.envelope = this.options.envelope;
+    params.instrument = this.options.instrument;
     
     this.audio.playTone(params);
     if (announce) this.announce(this.mapper.describe(item, idx, this.data.length));
@@ -137,7 +138,10 @@ export class SonificationEngine {
     this.sweepGain = ctx.createGain();
     const panner = ctx.createStereoPanner();
     
-    this.sweepOsc.type = 'sine';
+    // Set oscillator type (instrument)
+    const validTypes = ['sine', 'triangle', 'square', 'sawtooth'];
+    const instrument = this.options.instrument;
+    this.sweepOsc.type = validTypes.includes(instrument) ? instrument : 'sine';
     this.sweepOsc.connect(this.sweepGain);
     this.sweepGain.connect(panner);
     panner.connect(this.audio.getMasterGain());
@@ -193,7 +197,7 @@ export class SonificationEngine {
   }
   
   endPlayback() {
-    if (this.options.markers?.end !== false) this.audio.playMarker('end');
+    if (this.options.markers?.end === true) this.audio.playMarker('end');
     this.announce('Playback complete');
     this.playing = false;
     this.index = -1;

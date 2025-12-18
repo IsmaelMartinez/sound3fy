@@ -145,17 +145,19 @@ This idea came from a Web Audio API hackathon about 10 years ago. Life happened,
 Why? ~2.2 billion people have vision impairments. Charts are everywhere but almost never accessible. Alt text like "bar chart showing sales" doesn't let you explore the actual data.
 
 How it works:
-- Data values map to pitch (Web Audio API)
-- X-position maps to stereo pan
-- Notes quantized to musical scales
-- Keyboard navigation + screen reader support
+- Data values → pitch (higher value = higher note)
+- X-position → stereo pan (left to right)
+- Notes quantized to musical scales (pentatonic, major, blues)
+- Full keyboard navigation + ARIA screen reader support
+
+Now available on npm: `npm install sound3fy`
 
 Looking for feedback from:
 - Blind/low-vision users (does this actually help?)
 - D3.js developers (API design feedback)
 - Accessibility experts (what am I missing?)
 
-MIT licensed, no dependencies beyond D3.
+MIT licensed. Install via `npm install sound3fy`
 ```
 
 ---
@@ -196,7 +198,7 @@ I've been working on sound3fy, a library that adds sonification to D3 visualizat
 
 ```javascript
 // One line to add sound to any D3 selection
-bars.sonify({ pitch: { field: 'value', scale: 'pentatonic' } });
+bars.sonify({ pitch: 'value' });
 ```
 
 Features:
@@ -222,20 +224,100 @@ Consider creating an Observable notebook demonstrating sound3fy.
 
 ---
 
+#### 9. Medium
+
+**Link:** https://medium.com/
+
+```
+# Making Data Visualizations Accessible Through Sound
+
+## A 10-year-old hackathon idea finally comes to life
+
+About 10 years ago, I attended a Web Audio API hackathon with a simple question: what if blind users could "hear" data visualizations?
+
+Charts are everywhere. Sales dashboards, stock prices, COVID statistics, climate data. For sighted users, a quick glance reveals trends, outliers, and patterns. But for the 2.2 billion people with vision impairments worldwide, these visualizations are essentially invisible walls.
+
+Screen readers can only say "bar chart showing sales data" or laboriously read data tables row by row. The instant understanding that visualizations provide? Lost.
+
+Life got busy, and that hackathon idea sat in my notes for a decade. Recently, I finally built it.
+
+## Introducing sound3fy
+
+**sound3fy** is an open-source library that adds sonification to D3.js visualizations. One line of code makes any chart audible:
+
+```javascript
+d3.selectAll(".bar").sonify({ pitch: "value" });
+```
+
+### How it works
+
+- **Pitch mapping**: Higher data values play higher notes
+- **Stereo panning**: Position maps to left/right audio channels
+- **Musical scales**: Notes quantized to pentatonic, major, or blues scales (so it sounds pleasant, not jarring)
+- **Keyboard navigation**: Arrow keys to explore individual data points
+- **Screen reader support**: ARIA live regions announce values
+
+### Try it yourself
+
+**[▶ Live Demo](https://ismaelmartinez.github.io/sound3fy/)**
+
+The demo includes bar charts, line charts, and scatter plots. Try closing your eyes and pressing Play. Can you tell which month had the highest sales?
+
+## Why sonification?
+
+Research shows that humans can perceive complex patterns through audio. We're naturally good at detecting:
+
+- Pitch changes (rising/falling trends)
+- Rhythm patterns (regular vs irregular data)
+- Spatial audio (stereo positioning)
+
+Blind users who have tested sonification tools report being able to understand data trends comparably to sighted users viewing charts.
+
+## The technical approach
+
+sound3fy uses the Web Audio API for low-latency sound generation. Key design decisions:
+
+1. **Musical scales**: Raw frequency mapping sounds harsh. Quantizing to pentatonic scales makes the audio pleasant while preserving data relationships.
+
+2. **D3.js plugin architecture**: Works with any existing D3 visualization. No need to rebuild your charts.
+
+3. **Accessibility-first**: Full keyboard navigation, ARIA attributes, focus management, and screen reader announcements built in.
+
+## I need your help
+
+This is an early prototype, and I need feedback, especially from blind and low-vision users.
+
+- Does the sonification help you understand data?
+- Is the keyboard navigation intuitive?
+- What's confusing or missing?
+
+**GitHub:** https://github.com/IsmaelMartinez/sound3fy
+**Install:** `npm install sound3fy`
+
+If you work in accessibility, data visualization, or know someone who might benefit from this tool, I'd love to hear from you.
+
+---
+
+*Making data accessible, one sound at a time.* 🎵
+```
+
+---
+
 ### 🟢 Lower Priority: Social Media
 
-#### 9. Twitter/X
+#### 10. Twitter/X
 
 ```
 🔊 10 years ago at a Web Audio hackathon, I had an idea: make charts audible for blind users.
 
-Finally built it.
+Finally built it and just published to npm!
 
 sound3fy - add .sonify() to D3.js charts:
 - Higher values = higher pitch
 - Position = stereo pan
 - Arrow keys to explore
 
+npm install sound3fy
 Demo: https://ismaelmartinez.github.io/sound3fy/
 
 Need feedback from #a11y community! 🙏
@@ -245,7 +327,7 @@ Need feedback from #a11y community! 🙏
 
 ---
 
-#### 10. LinkedIn
+#### 11. LinkedIn
 
 ```
 🔊 Making data visualizations accessible through sound
@@ -262,6 +344,7 @@ How it works:
 - Keyboard navigation with screen reader support
 
 **Try the demo:** https://ismaelmartinez.github.io/sound3fy/
+**Install:** `npm install sound3fy`
 
 This is an early prototype. I'm actively seeking feedback from:
 - Blind and low-vision users
@@ -275,7 +358,7 @@ If you know someone who might benefit from or contribute to this project, please
 
 ---
 
-#### 11. Mastodon (accessibility-focused instances)
+#### 12. Mastodon (accessibility-focused instances)
 
 Post on instances like `a]y.info` or `dragonscave.space` which have strong accessibility communities.
 
@@ -292,6 +375,7 @@ Post on instances like `a]y.info` or `dragonscave.space` which have strong acces
 | Hacker News | Developers | news.ycombinator.com | 🟡 Medium |
 | r/dataisbeautiful | DataViz folks | reddit.com/r/dataisbeautiful | 🟡 Medium |
 | Observable | D3 community | observablehq.com | 🟡 Medium |
+| Medium | Tech readers | medium.com | 🟡 Medium |
 | Twitter #a11y | Mixed | twitter.com | 🟡 Medium |
 | r/javascript | Developers | reddit.com/r/javascript | 🟢 Low |
 | LinkedIn | Professional | linkedin.com | 🟢 Low |
@@ -317,11 +401,22 @@ Post on instances like `a]y.info` or `dragonscave.space` which have strong acces
 | AppleVis | ☐ | | | |
 | WebAIM | ☐ | | | |
 | Hacker News | ☐ | | | |
+| Medium | ☐ | | | |
 | Twitter | ☐ | | | |
 | LinkedIn | ☐ | | | |
 
 ---
 
 *Last updated: December 2024*
+
+---
+
+## Release Status
+
+**✅ npm package published:** `npm install sound3fy` (v0.1.1)
+
+The library is now available on npm with:
+- ESM and UMD builds
+- Zero dependencies (d3 is a peer dependency)
 
 

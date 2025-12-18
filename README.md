@@ -126,7 +126,7 @@ git clone https://github.com/IsmaelMartinez/sound3fy.git
 cd sound3fy
 npm install
 npm run dev
-npm test  # 70 tests
+npm test
 ```
 
 ## Documentation

@@ -13,6 +13,7 @@ const DEFAULTS = {
   duration: 200,
   gap: 50,
   mode: 'discrete',
+  instrument: 'sine',
   envelope: { attack: 0.02, decay: 0.05, sustain: 0.7, release: 0.1 },
   markers: { start: false, end: false },
   accessibility: { keyboard: true, announce: true, focus: true, hover: true },
