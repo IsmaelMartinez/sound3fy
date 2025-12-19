@@ -4,10 +4,12 @@
   "description": "Make D3.js visualizations accessible through sound",
   "main": "dist/sound3fy.umd.js",
   "module": "dist/sound3fy.esm.js",
+  "types": "dist/sound3fy.d.ts",
   "exports": {
     ".": {
       "import": "./dist/sound3fy.esm.js",
-      "require": "./dist/sound3fy.umd.js"
+      "require": "./dist/sound3fy.umd.js",
+      "types": "./dist/sound3fy.d.ts"
     }
   },
   "files": [

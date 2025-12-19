@@ -173,6 +173,15 @@ npm test  # 70 tests
 
 - [Architecture Decisions](./docs/adr/) - Key design decisions
 
+## Known Limitations
+
+This is an early prototype. Known limitations:
+
+- **Dynamic data**: If you update data with `selection.data(newData)`, call `destroy()` and re-`sonify()`. The sonification captures data at bind time.
+- **Large datasets**: Optimized for typical charts (up to ~100 data points). Performance with thousands of points is untested.
+- **D3 transitions**: `sonify()` works on selections, not transitions. Apply after transitions complete.
+- **Browser support**: Requires Web Audio API (all modern browsers). Older Safari may need `webkitAudioContext`.
+
 ## Help Wanted
 
 **Are you blind or low-vision?** Your feedback is invaluable! Please [share your experience](https://github.com/IsmaelMartinez/sound3fy/issues) — does the sonification work for you?

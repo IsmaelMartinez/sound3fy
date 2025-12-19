@@ -62,8 +62,12 @@ function nullEngine() {
 }
 
 // Auto-register D3 plugin
-if (typeof window !== 'undefined' && window.d3?.selection?.prototype) {
-  window.d3.selection.prototype.sonify = sonify;
+if (typeof window !== 'undefined') {
+  if (window.d3?.selection?.prototype) {
+    window.d3.selection.prototype.sonify = sonify;
+  } else {
+    console.warn('sound3fy: D3.js not detected. Load D3 first, or use SonificationEngine directly.');
+  }
 }
 
 export { sonify, AudioEngine, DataMapper, SonificationEngine, DEFAULTS };
