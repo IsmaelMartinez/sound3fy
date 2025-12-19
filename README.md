@@ -95,7 +95,18 @@ d3.selectAll(".dot").sonify({
   duration: 200,
   gap: 50,
   mode: "discrete",  // or "continuous"
-  accessibility: { keyboard: true, announce: true, focus: true, hover: true }
+  autoPlay: false,   // Auto-start playback after binding
+  markers: {
+    start: false,    // Play audio cue at playback start
+    end: false       // Play audio cue at playback end
+  },
+  accessibility: {
+    keyboard: true,        // Enable keyboard navigation
+    announce: true,        // Announce data points to screen readers
+    announceSummary: true, // Announce chart summary at playback start
+    focus: true,           // Visual focus indicators
+    hover: true            // Play sound on hover/focus
+  }
 }
 ```
 
@@ -110,11 +121,40 @@ d3.selectAll(".dot").sonify({
 | `chromatic` | All 12 notes |
 | `continuous` | Direct frequency |
 
+## API Methods
+
+### Playback Control
+
+| Method | Description |
+|--------|-------------|
+| `play()` | Start playback |
+| `pause()` | Pause playback |
+| `stop()` | Stop and reset |
+| `toggle()` | Toggle play/pause |
+| `next()` | Navigate to next point |
+| `previous()` | Navigate to previous point |
+| `first()` | Jump to first point |
+| `last()` | Jump to last point |
+| `setSpeed(n)` | Set playback speed (0.25-4) |
+| `setMode(m)` | Set mode ("discrete" or "continuous") |
+| `destroy()` | Clean up and remove listeners |
+
+### State Getters
+
+| Method | Description |
+|--------|-------------|
+| `isPlaying()` | Returns `true` if currently playing |
+| `isPaused()` | Returns `true` if paused |
+| `currentIndex()` | Returns current data point index |
+| `length()` | Returns total number of data points |
+| `getMode()` | Returns current mode ("discrete" or "continuous") |
+
 ## Accessibility
 
 Built for WCAG 2.2 compliance:
 
 - **ARIA**: `role="graphics-symbol"`, `aria-label`, `aria-live="polite"`
+- **Chart Summary**: Announces chart type, data point count, and value range at playback start
 - **Keyboard**: Full navigation
 - **Focus**: Visual indicators with high contrast support
 - **Reduced Motion**: Respects user preferences
@@ -126,7 +166,7 @@ git clone https://github.com/IsmaelMartinez/sound3fy.git
 cd sound3fy
 npm install
 npm run dev
-npm test
+npm test  # 70 tests
 ```
 
 ## Documentation

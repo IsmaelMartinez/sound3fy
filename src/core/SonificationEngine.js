@@ -64,6 +64,17 @@ export class SonificationEngine {
     this.playing = true;
     this.paused = false;
     
+    // Announce chart summary first, giving screen reader time to read
+    if (this.options.accessibility?.announceSummary !== false) {
+      this.announce(this.mapper.summarize(this.data));
+      await this.wait(500); // Allow screen reader to start reading before audio
+    }
+    
+    // Play start marker if enabled
+    if (this.options.markers?.start === true) {
+      this.audio.playMarker('start');
+    }
+    
     if (this.index < 0) this.index = 0;
     
     this.mode === 'continuous' ? this.playContinuous() : this.playDiscrete();
@@ -117,7 +128,6 @@ export class SonificationEngine {
     const params = this.mapper.map(item, idx, this.data.length);
     params.duration /= this.speed;
     params.envelope = this.options.envelope;
-    params.instrument = this.options.instrument;
     
     this.audio.playTone(params);
     if (announce) this.announce(this.mapper.describe(item, idx, this.data.length));
@@ -138,10 +148,7 @@ export class SonificationEngine {
     this.sweepGain = ctx.createGain();
     const panner = ctx.createStereoPanner();
     
-    // Set oscillator type (instrument)
-    const validTypes = ['sine', 'triangle', 'square', 'sawtooth'];
-    const instrument = this.options.instrument;
-    this.sweepOsc.type = validTypes.includes(instrument) ? instrument : 'sine';
+    this.sweepOsc.type = 'sine';
     this.sweepOsc.connect(this.sweepGain);
     this.sweepGain.connect(panner);
     panner.connect(this.audio.getMasterGain());
