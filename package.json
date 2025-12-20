@@ -4,9 +4,10 @@
   "description": "Make D3.js visualizations accessible through sound",
   "main": "dist/sound3fy.js",
   "module": "dist/sound3fy.esm.js",
-  "types": "dist/sound3fy.d.ts",
+  "types": "sound3fy.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "sound3fy.d.ts"
   ],
   "scripts": {
     "dev": "vite",

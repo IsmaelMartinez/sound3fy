@@ -22,10 +22,19 @@ export class AudioEngine {
   
   init() {
     if (this.context) return this;
-    this.context = new (window.AudioContext || window.webkitAudioContext)();
-    this.masterGain = this.context.createGain();
-    this.masterGain.gain.value = 0.6;
-    this.masterGain.connect(this.context.destination);
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) {
+        console.warn('sound3fy: Web Audio API not supported in this browser');
+        return this;
+      }
+      this.context = new AudioCtx();
+      this.masterGain = this.context.createGain();
+      this.masterGain.gain.value = 0.6;
+      this.masterGain.connect(this.context.destination);
+    } catch (e) {
+      console.warn('sound3fy: Failed to initialize audio:', e.message);
+    }
     return this;
   }
   
