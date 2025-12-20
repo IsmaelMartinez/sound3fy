@@ -676,15 +676,14 @@ sonification.<span class="code-function">play</span>();</pre>
     <footer>
       <p>
         <a href="https://github.com/IsmaelMartinez/sound3fy">GitHub</a> · 
-        <a href="https://github.com/IsmaelMartinez/sound3fy/blob/master/docs/RESEARCH.md">Research</a> · 
-        <a href="https://github.com/IsmaelMartinez/sound3fy/tree/master/docs/adr">Architecture Decisions</a>
+        <a href="https://github.com/IsmaelMartinez/sound3fy/tree/main/docs/adr">Architecture Decisions</a>
       </p>
     </footer>
   </div>
   
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script type="module">
-    import { SonificationEngine, DataMapper, AudioEngine } from './src/index.js';
+    import { SonificationEngine, DataMapper, AudioEngine } from '../src/index.js';
     
     // Register D3 plugin
     d3.selection.prototype.sonify = function(options = {}) {

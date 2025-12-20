@@ -109,7 +109,9 @@ describe('SonificationEngine', () => {
     });
     
     it('should set playing state', async () => {
-      await engine.play();
+      const playPromise = engine.play();
+      await vi.advanceTimersByTimeAsync(600); // Allow for 500ms summary delay
+      await playPromise;
       
       expect(engine.playing).toBe(true);
       expect(engine.paused).toBe(false);
@@ -120,6 +122,51 @@ describe('SonificationEngine', () => {
       await vi.advanceTimersByTimeAsync(100);
       
       expect(engine.audio.init).toHaveBeenCalled();
+    });
+    
+    it('should play start marker when markers.start is true', async () => {
+      const playPromise = engine.play();
+      await vi.advanceTimersByTimeAsync(600); // Allow for 500ms summary delay
+      await playPromise;
+      
+      expect(engine.audio.playMarker).toHaveBeenCalledWith('start');
+    });
+    
+    it('should not play start marker when markers.start is false', async () => {
+      const engineNoMarker = new SonificationEngine({
+        duration: 200,
+        markers: { start: false, end: false }
+      });
+      const data = [{ datum: { value: 10 }, index: 0, element: mockElement }];
+      engineNoMarker.bind(mockSelection, data);
+      
+      const playPromise = engineNoMarker.play();
+      await vi.advanceTimersByTimeAsync(600); // Allow for 500ms summary delay
+      await playPromise;
+      
+      expect(engineNoMarker.audio.playMarker).not.toHaveBeenCalledWith('start');
+    });
+    
+    it('should announce chart summary by default', async () => {
+      engine.play();
+      await vi.advanceTimersByTimeAsync(100);
+      
+      expect(engine.mapper.summarize).toHaveBeenCalledWith(engine.data);
+    });
+    
+    it('should skip summary announcement when announceSummary is false', async () => {
+      const engineNoSummary = new SonificationEngine({
+        duration: 200,
+        accessibility: { announceSummary: false }
+      });
+      const data = [{ datum: { value: 10 }, index: 0, element: mockElement }];
+      engineNoSummary.bind(mockSelection, data);
+      
+      const playPromise = engineNoSummary.play();
+      await vi.advanceTimersByTimeAsync(100);
+      await playPromise;
+      
+      expect(engineNoSummary.mapper.summarize).not.toHaveBeenCalled();
     });
   });
   

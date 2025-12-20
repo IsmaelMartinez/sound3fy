@@ -198,7 +198,7 @@ I've been working on sound3fy, a library that adds sonification to D3 visualizat
 
 ```javascript
 // One line to add sound to any D3 selection
-bars.sonify({ pitch: 'value' });
+bars.sonify();
 ```
 
 Features:
@@ -239,21 +239,23 @@ Charts are everywhere. Sales dashboards, stock prices, COVID statistics, climate
 
 Screen readers can only say "bar chart showing sales data" or laboriously read data tables row by row. The instant understanding that visualizations provide? Lost.
 
-Life got busy, and that hackathon idea sat in my notes for a decade. Recently, I finally built it.
+Life got busy, and that hackathon idea sat in my notes for a decade—until recently, when I finally built it with the help of AI pair programming. Honestly, without AI assistance I wouldn't have had the time to turn this idea into working code.
 
 ## Introducing sound3fy
 
 **sound3fy** is an open-source library that adds sonification to D3.js visualizations. One line of code makes any chart audible:
 
 ```javascript
-d3.selectAll(".bar").sonify({ pitch: "value" });
+d3.selectAll(".bar").sonify();
 ```
+
+It works with existing D3 charts. No rewrites. No special data formats.
 
 ### How it works
 
 - **Pitch mapping**: Higher data values play higher notes
 - **Stereo panning**: Position maps to left/right audio channels
-- **Musical scales**: Notes quantized to pentatonic, major, or blues scales (so it sounds pleasant, not jarring)
+- **Musical scales**: Notes quantized to pleasant scales like pentatonic or major
 - **Keyboard navigation**: Arrow keys to explore individual data points
 - **Screen reader support**: ARIA live regions announce values
 
@@ -271,7 +273,13 @@ Research shows that humans can perceive complex patterns through audio. We're na
 - Rhythm patterns (regular vs irregular data)
 - Spatial audio (stereo positioning)
 
-Blind users who have tested sonification tools report being able to understand data trends comparably to sighted users viewing charts.
+Recent research backs this up. A 2024 study from UIUC found that combining sonification with other modalities helps blind users interpret statistical charts with high accuracy[1]. NASA's "Universe of Sound" project showed that sonified astronomical data improved learning for both blind and sighted participants[2].
+
+## Prior work
+
+Sonification for accessibility isn't new. Highcharts has offered a sonification module for years, and tools like TwoTone let anyone turn data into music without code. Research tools like MAIDR and Susurrus have explored multimodal approaches combining sound with braille and natural audio[3].
+
+sound3fy aims to bring this capability to the D3.js ecosystem—where many custom visualisations live but accessibility tooling is sparse.
 
 ## The technical approach
 
@@ -299,6 +307,18 @@ If you work in accessibility, data visualization, or know someone who might bene
 ---
 
 *Making data accessible, one sound at a time.* 🎵
+
+---
+
+**References**
+
+[1] J. Yoon et al., "MAIDR: Making Statistical Visualizations Accessible with Multimodal Data Representation" (2024) — https://arxiv.org/abs/2403.00717
+
+[2] K. Arcand et al., "A Universe of Sound: Processing NASA Data into Sonifications to Explore Participant Response" (2024) — https://arxiv.org/abs/2403.18082
+
+[3] L. Zhao et al., "Accessible Data Representation with Natural Sound" (2023) — https://drum.lib.umd.edu/items/66d33f10-0c1c-4028-ba5c-a59729a10daa
+
+**Related tools:** [Highcharts Sonification](https://www.highcharts.com/docs/accessibility/sonification) · [TwoTone](https://twotone.io) · [MAIDR](https://github.com/uiuc-ischool-accessible-computing-lab/maidr) · [Data Sonification Toolkit](https://www.sonificationkit.com)
 ```
 
 ---

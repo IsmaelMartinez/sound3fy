@@ -22,10 +22,19 @@ export class AudioEngine {
   
   init() {
     if (this.context) return this;
-    this.context = new (window.AudioContext || window.webkitAudioContext)();
-    this.masterGain = this.context.createGain();
-    this.masterGain.gain.value = 0.6;
-    this.masterGain.connect(this.context.destination);
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) {
+        console.warn('sound3fy: Web Audio API not supported in this browser');
+        return this;
+      }
+      this.context = new AudioCtx();
+      this.masterGain = this.context.createGain();
+      this.masterGain.gain.value = 0.6;
+      this.masterGain.connect(this.context.destination);
+    } catch (e) {
+      console.warn('sound3fy: Failed to initialize audio:', e.message);
+    }
     return this;
   }
   
@@ -35,15 +44,8 @@ export class AudioEngine {
   
   /**
    * Play a tone with ADSR envelope
-   * @param {Object} options
-   * @param {number} options.frequency - Frequency in Hz (default: 440)
-   * @param {number} options.duration - Duration in seconds (default: 0.2)
-   * @param {number} options.volume - Volume 0-1 (default: 0.5)
-   * @param {number} options.pan - Stereo pan -1 to 1 (default: 0)
-   * @param {string} options.instrument - Oscillator type: 'sine', 'triangle', 'square', 'sawtooth' (default: 'sine')
-   * @param {Object} options.envelope - ADSR envelope settings
    */
-  playTone({ frequency = 440, duration = 0.2, volume = 0.5, pan = 0, instrument = 'sine', envelope = {} } = {}) {
+  playTone({ frequency = 440, duration = 0.2, volume = 0.5, pan = 0, envelope = {} } = {}) {
     this.init();
     
     const ctx = this.context;
@@ -54,9 +56,7 @@ export class AudioEngine {
     const gain = ctx.createGain();
     const panner = ctx.createStereoPanner();
     
-    // Validate and set oscillator type
-    const validTypes = ['sine', 'triangle', 'square', 'sawtooth'];
-    osc.type = validTypes.includes(instrument) ? instrument : 'sine';
+    osc.type = 'sine';
     osc.frequency.value = frequency;
     panner.pan.value = Math.max(-1, Math.min(1, pan));
     
