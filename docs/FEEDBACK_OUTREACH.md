@@ -414,7 +414,7 @@ Post on instances like `a]y.info` or `dragonscave.space` which have strong acces
 | AppleVis | ☐ | | | |
 | WebAIM | ☐ | | | |
 | Hacker News | ☐ | | | |
-| Medium | ☑ | 2024-12-22 | | https://lnkd.in/eVPKcGpc |
+| Medium | ☑ | 2024-12-22 | | https://medium.com/@ismaelmartinez/making-data-visualisations-audible-08df20b7f1cd |
 | Twitter | ☐ | | | |
 | LinkedIn | ☑ | 2024-12-22 | | Linked to Medium article |
 
