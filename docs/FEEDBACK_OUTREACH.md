@@ -410,10 +410,10 @@ Post on instances like `a]y.info` or `dragonscave.space` which have strong acces
 
 | Platform | Posted | Date | Response | Notes |
 |----------|--------|------|----------|-------|
-| r/Blind | ☐ | | | |
+| r/Blind | ☑ | 2024-12-22 | | |
 | AppleVis | ☐ | | | |
 | WebAIM | ☐ | | | |
-| Hacker News | ☐ | | | |
+| Hacker News | ☑ | 2024-12-22 | | |
 | Medium | ☑ | 2024-12-22 | | https://medium.com/@ismaelmartinez/making-data-visualisations-audible-08df20b7f1cd |
 | Twitter | ☐ | | | |
 | LinkedIn | ☑ | 2024-12-22 | | Linked to Medium article |
