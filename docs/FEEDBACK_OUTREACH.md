@@ -348,17 +348,21 @@ Need feedback from #a11y community! 🙏
 #### 11. LinkedIn
 
 ```
-🔊 What if you could hear a bar chart?
+What if you could hear a bar chart?
 
-Sounds weird, right? But for the 2.2 billion people with vision impairments, charts are invisible walls.
+Sounds strange, right? But for the 2.2 billion people with vision impairments, charts are often invisible walls.
 
-I finally built that weird hackathon idea from 10 years ago: sound3fy—turn D3.js charts into sound with one line of code.
+I finally built a weird hackathon idea from 10 years ago: sound3fy.
 
-Higher values = higher notes. Left-to-right = stereo pan.
+It adds meaningful sound to D3.js charts with a single line of code.
 
-Try it (close your eyes): https://ismaelmartinez.github.io/sound3fy/
+👉 Try it (put some headphones and close your eyes):
 
-Looking for feedback from blind/low-vision users. Is this actually useful, or just well intentioned?
+https://ismaelmartinez.github.io/sound3fy/
+
+I'm especially looking for feedback from blind and low-vision users.
+
+Does this help you understand data, or is it just well-intentioned?
 
 #accessibility #a11y #dataviz #opensource
 ```
