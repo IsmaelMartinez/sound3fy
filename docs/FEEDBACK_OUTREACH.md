@@ -364,6 +364,8 @@ I'm especially looking for feedback from blind and low-vision users.
 
 Does this help you understand data, or is it just well-intentioned?
 
+Read more: https://lnkd.in/eVPKcGpc
+
 #accessibility #a11y #dataviz #opensource
 ```
 
@@ -412,9 +414,9 @@ Post on instances like `a]y.info` or `dragonscave.space` which have strong acces
 | AppleVis | ☐ | | | |
 | WebAIM | ☐ | | | |
 | Hacker News | ☐ | | | |
-| Medium | ☐ | | | |
+| Medium | ☑ | 2024-12-22 | | https://lnkd.in/eVPKcGpc |
 | Twitter | ☐ | | | |
-| LinkedIn | ☐ | | | |
+| LinkedIn | ☑ | 2024-12-22 | | Linked to Medium article |
 
 ---
 
