@@ -229,96 +229,94 @@ Consider creating an Observable notebook demonstrating sound3fy.
 **Link:** https://medium.com/
 
 ```
-# Making Data Visualizations Accessible Through Sound
+# Making Data Visualisations Audible
+
+*Photo by Milad Fakurian on Unsplash*
 
 ## A 10-year-old hackathon idea finally comes to life
 
-About 10 years ago, I attended a Web Audio API hackathon with a simple question: what if blind users could "hear" data visualizations?
+About 10 years ago, I attended a Web Audio API hackathon, and left with an idea of a side project: what if blind users could "hear" data visualisations?
 
-Charts are everywhere. Sales dashboards, stock prices, COVID statistics, climate data. For sighted users, a quick glance reveals trends, outliers, and patterns. But for the 2.2 billion people with vision impairments worldwide, these visualizations are essentially invisible walls.
+Charts are everywhere. Sales dashboards, stock prices, COVID statistics, climate data. For sighted users, a quick glance reveals trends, outliers, and patterns. But for the 2.2 billion people with vision impairments worldwide, these visualisations are essentially invisible walls.
 
-Screen readers can only say "bar chart showing sales data" or laboriously read data tables row by row. The instant understanding that visualizations provide? Lost.
+Screen readers typically announce that a chart exists, or read values sequentially. That instant understanding that visualisations provide is lost.
 
-Life got busy, and that hackathon idea sat in my notes for a decade—until recently, when I finally built it with the help of AI pair programming. Honestly, without AI assistance I wouldn't have had the time to turn this idea into working code.
+Life got busy, and that hackathon idea sat in my notes for a decade, until now. With the help of AI pair programming, I was able to turn that decade-old idea into a working prototype in a fraction of the time.
 
 ## Introducing sound3fy
 
-**sound3fy** is an open-source library that adds sonification to D3.js visualizations. One line of code makes any chart audible:
+**sound3fy** is an open-source library that adds sonification to D3.js visualisations. One line of code makes many charts audible:
 
 ```javascript
-d3.selectAll(".bar").sonify();
+d3.selectAll(".bar").sonify({ pitch: "value" });
 ```
 
-It works with existing D3 charts. No rewrites. No special data formats.
+It works with existing D3.js charts. No rewrites. No special data formats.
 
-### How it works
+sound3fy is not intended to replace tables or screen readers, but to complement them by restoring some of the rapid, high-level pattern recognition that sighted users get from charts.
 
+### How sound3fy works
+
+- **Keyboard navigation**: Arrow keys to explore individual data points
+- **Screen reader support**: ARIA live regions announce values
 - **Pitch mapping**: Higher data values play higher notes
 - **Stereo panning**: Position maps to left/right audio channels
 - **Musical scales**: Notes quantized to pleasant scales like pentatonic or major
-- **Keyboard navigation**: Arrow keys to explore individual data points
-- **Screen reader support**: ARIA live regions announce values
 
 ### Try it yourself
 
-**[▶ Live Demo](https://ismaelmartinez.github.io/sound3fy/)**
+**[Live Demo](https://ismaelmartinez.github.io/sound3fy/)** (interactive sonified charts)
 
-The demo includes bar charts, line charts, and scatter plots. Try closing your eyes and pressing Play. Can you tell which month had the highest sales?
+The demo includes bar charts, line charts, and scatter plots. Try closing your eyes and pressing Play. Can you tell if sales are increasing or decreasing?
 
 ## Why sonification?
 
-Research shows that humans can perceive complex patterns through audio. We're naturally good at detecting:
+Research shows that humans are particularly good at detecting patterns through sound. Rising pitch for trends, rhythm for regularity, and stereo positioning for spatial relationships.
 
-- Pitch changes (rising/falling trends)
-- Rhythm patterns (regular vs irregular data)
-- Spatial audio (stereo positioning)
+Studies of sonification tools suggest that blind users can understand trends and comparisons in ways much closer to how sighted users read charts.
 
-Recent research backs this up. A 2024 study from UIUC found that combining sonification with other modalities helps blind users interpret statistical charts with high accuracy[1]. NASA's "Universe of Sound" project showed that sonified astronomical data improved learning for both blind and sighted participants[2].
+Recent research backs this up. A 2024 study from UIUC found that combining sonification with other modalities helps blind users interpret statistical charts with high accuracy.
 
 ## Prior work
 
-Sonification for accessibility isn't new. Highcharts has offered a sonification module for years, and tools like TwoTone let anyone turn data into music without code. Research tools like MAIDR and Susurrus have explored multimodal approaches combining sound with braille and natural audio[3].
+Sonification for accessibility isn't new. Highcharts has offered a sonification module for years, and tools like TwoTone let anyone turn data into music without code.
 
-sound3fy aims to bring this capability to the D3.js ecosystem—where many custom visualisations live but accessibility tooling is sparse.
+Research tools like MAIDR have explored multimodal approaches combining sound with braille and natural audio.
 
-## The technical approach
+sound3fy aims to bring this capability to the D3.js ecosystem, where many custom visualisations live but accessibility tooling is sparse. Chart2Music is a valid alternative, especially if you aren't using D3.js for your graphs.
 
-sound3fy uses the Web Audio API for low-latency sound generation. Key design decisions:
+## Technical design
 
-1. **Musical scales**: Raw frequency mapping sounds harsh. Quantizing to pentatonic scales makes the audio pleasant while preserving data relationships.
+sound3fy uses the Web Audio API for low-latency sound generation. Key design decisions include:
 
-2. **D3.js plugin architecture**: Works with any existing D3 visualization. No need to rebuild your charts.
+### Musical scales
 
-3. **Accessibility-first**: Full keyboard navigation, ARIA attributes, focus management, and screen reader announcements built in.
+Raw frequency mapping sounds harsh. Quantizing to pentatonic scales makes the audio pleasant while preserving data relationships.
 
-## I need your help
+### D3.js plugin architecture
 
-This is an early prototype, and I need feedback, especially from blind and low-vision users.
+It should work with any existing D3.js visualisation. No need to rebuild your charts.
+
+### Accessibility-first
+
+Full keyboard navigation, ARIA attributes, focus management, and screen reader announcements are built in.
+
+## Looking for feedback
+
+This is an early prototype, and I need feedback, especially from blind and low-vision users. I want to make sure this is genuinely useful, not just well intentioned.
 
 - Does the sonification help you understand data?
 - Is the keyboard navigation intuitive?
-- What's confusing or missing?
+- What is confusing or missing?
+
+Hopefully it helps bridge that gap on accessibility. If it doesn't, that's still useful learning. I hope it sparks a conversation about how we can do better.
 
 **GitHub:** https://github.com/IsmaelMartinez/sound3fy
 **Install:** `npm install sound3fy`
 
-If you work in accessibility, data visualization, or know someone who might benefit from this tool, I'd love to hear from you.
-
 ---
 
-*Making data accessible, one sound at a time.* 🎵
-
----
-
-**References**
-
-[1] J. Yoon et al., "MAIDR: Making Statistical Visualizations Accessible with Multimodal Data Representation" (2024) — https://arxiv.org/abs/2403.00717
-
-[2] K. Arcand et al., "A Universe of Sound: Processing NASA Data into Sonifications to Explore Participant Response" (2024) — https://arxiv.org/abs/2403.18082
-
-[3] L. Zhao et al., "Accessible Data Representation with Natural Sound" (2023) — https://drum.lib.umd.edu/items/66d33f10-0c1c-4028-ba5c-a59729a10daa
-
-**Related tools:** [Highcharts Sonification](https://www.highcharts.com/docs/accessibility/sonification) · [TwoTone](https://twotone.io) · [MAIDR](https://github.com/uiuc-ischool-accessible-computing-lab/maidr) · [Data Sonification Toolkit](https://www.sonificationkit.com)
+If you work in accessibility, data visualisation, or know someone who might benefit from this tool, I would love to hear from you.
 ```
 
 ---
@@ -350,30 +348,19 @@ Need feedback from #a11y community! 🙏
 #### 11. LinkedIn
 
 ```
-🔊 Making data visualizations accessible through sound
+🔊 What if you could hear a bar chart?
 
-10 years ago at a Web Audio API hackathon, I had an idea: what if blind users could "hear" data visualizations?
+Sounds weird, right? But for the 2.2 billion people with vision impairments, charts are invisible walls.
 
-Life got busy. The idea sat in my notes.
+I finally built that weird hackathon idea from 10 years ago: sound3fy—turn D3.js charts into sound with one line of code.
 
-Recently, while cleaning up old repos, I decided to finally build it. With AI pair programming, I created sound3fy - an open-source library that adds sonification to D3.js charts.
+Higher values = higher notes. Left-to-right = stereo pan.
 
-How it works:
-- Data values → pitch (higher value = higher note)
-- X-position → stereo pan (left to right)
-- Keyboard navigation with screen reader support
+Try it (close your eyes): https://ismaelmartinez.github.io/sound3fy/
 
-**Try the demo:** https://ismaelmartinez.github.io/sound3fy/
-**Install:** `npm install sound3fy`
+Looking for feedback from blind/low-vision users. Is this actually useful, or just well intentioned?
 
-This is an early prototype. I'm actively seeking feedback from:
-- Blind and low-vision users
-- Accessibility practitioners
-- Data visualization developers
-
-If you know someone who might benefit from or contribute to this project, please share!
-
-#accessibility #a11y #dataviz #opensource #webdevelopment
+#accessibility #a11y #dataviz #opensource
 ```
 
 ---
