@@ -199,7 +199,7 @@ export class SonificationEngine {
       this.sweepOsc?.stop();
       this.sweepOsc?.disconnect();
       this.sweepGain?.disconnect();
-    } catch (e) {}
+    } catch (_e) {}
     this.sweepOsc = this.sweepGain = null;
   }
   
