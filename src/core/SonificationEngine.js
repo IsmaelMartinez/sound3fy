@@ -128,7 +128,8 @@ export class SonificationEngine {
     const params = this.mapper.map(item, idx, this.data.length);
     params.duration /= this.speed;
     params.envelope = this.options.envelope;
-    
+    params.instrument = this.options.instrument;
+
     this.audio.playTone(params);
     if (announce) this.announce(this.mapper.describe(item, idx, this.data.length));
     this.updateFocus(item.element);
@@ -148,7 +149,8 @@ export class SonificationEngine {
     this.sweepGain = ctx.createGain();
     const panner = ctx.createStereoPanner();
     
-    this.sweepOsc.type = 'sine';
+    const instrument = this.options.instrument;
+    this.sweepOsc.type = ['sine', 'triangle', 'square', 'sawtooth'].includes(instrument) ? instrument : 'sine';
     this.sweepOsc.connect(this.sweepGain);
     this.sweepGain.connect(panner);
     panner.connect(this.audio.getMasterGain());

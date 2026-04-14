@@ -45,18 +45,19 @@ export class AudioEngine {
   /**
    * Play a tone with ADSR envelope
    */
-  playTone({ frequency = 440, duration = 0.2, volume = 0.5, pan = 0, envelope = {} } = {}) {
+  playTone({ frequency = 440, duration = 0.2, volume = 0.5, pan = 0, envelope = {}, instrument = 'sine' } = {}) {
     this.init();
-    
+    if (!this.context) return this;
+
     const ctx = this.context;
     const now = ctx.currentTime;
     const { attack = 0.02, decay = 0.05, sustain = 0.7, release = 0.1 } = envelope;
-    
+
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     const panner = ctx.createStereoPanner();
-    
-    osc.type = 'sine';
+
+    osc.type = ['sine', 'triangle', 'square', 'sawtooth'].includes(instrument) ? instrument : 'sine';
     osc.frequency.value = frequency;
     panner.pan.value = Math.max(-1, Math.min(1, pan));
     

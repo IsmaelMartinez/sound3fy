@@ -32,8 +32,6 @@ export class DataMapper {
         this.extents.x = { min: Math.min(...xValues), max: Math.max(...xValues) };
       }
     }
-    
-    this.extent = this.extents.pitch; // Backward compat
   }
   
   /** Get numeric value from datum */
