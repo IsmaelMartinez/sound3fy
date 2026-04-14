@@ -2,7 +2,7 @@
  * SonificationEngine - Orchestrates audio playback with accessibility
  */
 
-import { AudioEngine } from './AudioEngine.js';
+import { AudioEngine, resolveWaveform } from './AudioEngine.js';
 import { DataMapper } from './DataMapper.js';
 
 export class SonificationEngine {
@@ -149,8 +149,7 @@ export class SonificationEngine {
     this.sweepGain = ctx.createGain();
     const panner = ctx.createStereoPanner();
     
-    const instrument = this.options.instrument;
-    this.sweepOsc.type = ['sine', 'triangle', 'square', 'sawtooth'].includes(instrument) ? instrument : 'sine';
+    this.sweepOsc.type = resolveWaveform(this.options.instrument);
     this.sweepOsc.connect(this.sweepGain);
     this.sweepGain.connect(panner);
     panner.connect(this.audio.getMasterGain());

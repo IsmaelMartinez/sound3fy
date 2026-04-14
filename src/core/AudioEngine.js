@@ -11,6 +11,10 @@ const SCALES = {
   blues: [0, 3, 5, 6, 7, 10]
 };
 
+// Oscillator waveforms supported by the Web Audio API
+const WAVEFORMS = ['sine', 'triangle', 'square', 'sawtooth'];
+export const resolveWaveform = (w) => WAVEFORMS.includes(w) ? w : 'sine';
+
 const A4 = 440;
 const midiToFreq = (midi) => A4 * Math.pow(2, (midi - 69) / 12);
 
@@ -57,7 +61,7 @@ export class AudioEngine {
     const gain = ctx.createGain();
     const panner = ctx.createStereoPanner();
 
-    osc.type = ['sine', 'triangle', 'square', 'sawtooth'].includes(instrument) ? instrument : 'sine';
+    osc.type = resolveWaveform(instrument);
     osc.frequency.value = frequency;
     panner.pan.value = Math.max(-1, Math.min(1, pan));
     
