@@ -5,6 +5,7 @@
 export type ScaleType = 'pentatonic' | 'major' | 'minor' | 'blues' | 'chromatic' | 'continuous';
 export type PlaybackMode = 'discrete' | 'continuous';
 export type ChartType = 'bar' | 'line' | 'scatter';
+export type Instrument = 'sine' | 'triangle' | 'square' | 'sawtooth';
 
 export interface PitchConfig {
   field?: string | ((datum: any, index: number) => number) | null;
@@ -45,6 +46,7 @@ export interface SonifyOptions {
   mode?: PlaybackMode;
   chartType?: ChartType;
   x?: string | ((datum: any, index: number) => number);
+  instrument?: Instrument;
   envelope?: EnvelopeConfig;
   markers?: { start?: boolean; end?: boolean };
   accessibility?: AccessibilityConfig;
@@ -55,7 +57,7 @@ export class AudioEngine {
   constructor();
   init(): this;
   resume(): Promise<void>;
-  playTone(options?: { frequency?: number; duration?: number; volume?: number; pan?: number; envelope?: EnvelopeConfig }): this;
+  playTone(options?: { frequency?: number; duration?: number; volume?: number; pan?: number; envelope?: EnvelopeConfig; instrument?: Instrument }): this;
   valueToFrequency(value: number, options?: { minFreq?: number; maxFreq?: number; scale?: ScaleType }): number;
   playMarker(type: 'start' | 'end'): this;
   getContext(): AudioContext;

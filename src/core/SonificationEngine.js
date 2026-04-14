@@ -2,7 +2,7 @@
  * SonificationEngine - Orchestrates audio playback with accessibility
  */
 
-import { AudioEngine } from './AudioEngine.js';
+import { AudioEngine, resolveWaveform } from './AudioEngine.js';
 import { DataMapper } from './DataMapper.js';
 
 export class SonificationEngine {
@@ -128,7 +128,8 @@ export class SonificationEngine {
     const params = this.mapper.map(item, idx, this.data.length);
     params.duration /= this.speed;
     params.envelope = this.options.envelope;
-    
+    params.instrument = this.options.instrument;
+
     this.audio.playTone(params);
     if (announce) this.announce(this.mapper.describe(item, idx, this.data.length));
     this.updateFocus(item.element);
@@ -148,7 +149,7 @@ export class SonificationEngine {
     this.sweepGain = ctx.createGain();
     const panner = ctx.createStereoPanner();
     
-    this.sweepOsc.type = 'sine';
+    this.sweepOsc.type = resolveWaveform(this.options.instrument);
     this.sweepOsc.connect(this.sweepGain);
     this.sweepGain.connect(panner);
     panner.connect(this.audio.getMasterGain());

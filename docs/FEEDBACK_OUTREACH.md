@@ -420,13 +420,13 @@ Post on instances like `a]y.info` or `dragonscave.space` which have strong acces
 
 ---
 
-*Last updated: December 2024*
+*Last updated: April 2026*
 
 ---
 
 ## Release Status
 
-**✅ npm package published:** `npm install sound3fy` (v0.1.1)
+**✅ npm package published:** `npm install sound3fy` (v0.1.2)
 
 The library is now available on npm with:
 - ESM and UMD builds

@@ -94,7 +94,8 @@ d3.selectAll(".dot").sonify({
   pan: { range: [-0.7, 0.7] },
   duration: 200,
   gap: 50,
-  mode: "discrete",  // or "continuous"
+  mode: "discrete",          // or "continuous"
+  instrument: "sine",        // sine | triangle | square | sawtooth
   accessibility: { keyboard: true, announce: true, focus: true, hover: true }
 }
 ```

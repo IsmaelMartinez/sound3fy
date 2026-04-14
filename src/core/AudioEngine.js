@@ -11,6 +11,10 @@ const SCALES = {
   blues: [0, 3, 5, 6, 7, 10]
 };
 
+// Oscillator waveforms supported by the Web Audio API
+const WAVEFORMS = ['sine', 'triangle', 'square', 'sawtooth'];
+export const resolveWaveform = (w) => WAVEFORMS.includes(w) ? w : 'sine';
+
 const A4 = 440;
 const midiToFreq = (midi) => A4 * Math.pow(2, (midi - 69) / 12);
 
@@ -45,18 +49,19 @@ export class AudioEngine {
   /**
    * Play a tone with ADSR envelope
    */
-  playTone({ frequency = 440, duration = 0.2, volume = 0.5, pan = 0, envelope = {} } = {}) {
+  playTone({ frequency = 440, duration = 0.2, volume = 0.5, pan = 0, envelope = {}, instrument = 'sine' } = {}) {
     this.init();
-    
+    if (!this.context) return this;
+
     const ctx = this.context;
     const now = ctx.currentTime;
     const { attack = 0.02, decay = 0.05, sustain = 0.7, release = 0.1 } = envelope;
-    
+
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     const panner = ctx.createStereoPanner();
-    
-    osc.type = 'sine';
+
+    osc.type = resolveWaveform(instrument);
     osc.frequency.value = frequency;
     panner.pan.value = Math.max(-1, Math.min(1, pan));
     
