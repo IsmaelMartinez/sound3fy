@@ -2,7 +2,7 @@
  * SonificationEngine - Orchestrates audio playback with accessibility
  */
 
-import { AudioEngine, resolveWaveform } from './AudioEngine.js';
+import { AudioEngine, resolveWaveform, prefersReducedMotion } from './AudioEngine.js';
 import { DataMapper } from './DataMapper.js';
 
 export class SonificationEngine {
@@ -18,7 +18,14 @@ export class SonificationEngine {
     this.paused = false;
     this.timer = null;
     this.speed = 1;
-    this.mode = options.mode || 'discrete';
+
+    // Continuous mode sweeps frequency and pan over time; honor the user's
+    // reduced-motion preference by downgrading to discrete unless opted out.
+    const requestedMode = options.mode || 'discrete';
+    const respectReducedMotion = options.accessibility?.respectReducedMotion !== false;
+    this.mode = (requestedMode === 'continuous' && respectReducedMotion && prefersReducedMotion())
+      ? 'discrete'
+      : requestedMode;
     
     this.liveRegion = null;
     this._keyHandler = null;

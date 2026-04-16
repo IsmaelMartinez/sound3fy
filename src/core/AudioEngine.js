@@ -15,6 +15,17 @@ const SCALES = {
 const WAVEFORMS = ['sine', 'triangle', 'square', 'sawtooth'];
 export const resolveWaveform = (w) => WAVEFORMS.includes(w) ? w : 'sine';
 
+/** Whether the user has requested reduced motion via OS/browser preferences. */
+export const prefersReducedMotion = () => {
+  try {
+    return typeof window !== 'undefined'
+      && typeof window.matchMedia === 'function'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch (_e) {
+    return false;
+  }
+};
+
 const A4 = 440;
 const midiToFreq = (midi) => A4 * Math.pow(2, (midi - 69) / 12);
 
