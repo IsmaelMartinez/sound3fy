@@ -118,7 +118,9 @@ Built for WCAG 2.2 compliance:
 - **ARIA**: `role="graphics-symbol"`, `aria-label`, `aria-live="polite"`
 - **Keyboard**: Full navigation
 - **Focus**: Visual indicators with high contrast support
-- **Reduced Motion**: Respects user preferences
+- **Reduced Motion**: When `prefers-reduced-motion: reduce` is set, continuous
+  sweep mode falls back to discrete note-by-note playback. Disable with
+  `accessibility: { respectReducedMotion: false }`.
 
 ## Development
 

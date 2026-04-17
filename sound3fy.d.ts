@@ -35,6 +35,11 @@ export interface AccessibilityConfig {
   announceSummary?: boolean;
   focus?: boolean;
   hover?: boolean;
+  /**
+   * When true (default), continuous sweep mode is downgraded to discrete
+   * playback if the user has set `prefers-reduced-motion: reduce`.
+   */
+  respectReducedMotion?: boolean;
 }
 
 export interface SonifyOptions {

@@ -5,6 +5,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 
 // Mock AudioEngine - must be before import
+const prefersReducedMotionMock = vi.fn().mockReturnValue(false);
 vi.mock('./AudioEngine.js', () => {
   const AudioEngine = function() {
     this.init = vi.fn().mockReturnThis();
@@ -15,7 +16,11 @@ vi.mock('./AudioEngine.js', () => {
     this.getMasterGain = vi.fn().mockReturnValue({ connect: vi.fn() });
     this.destroy = vi.fn();
   };
-  return { AudioEngine };
+  return {
+    AudioEngine,
+    resolveWaveform: (w) => w || 'sine',
+    prefersReducedMotion: (...args) => prefersReducedMotionMock(...args)
+  };
 });
 
 // Mock DataMapper
@@ -291,6 +296,47 @@ describe('SonificationEngine', () => {
     });
   });
   
+  describe('prefers-reduced-motion', () => {
+    afterEach(() => {
+      prefersReducedMotionMock.mockReturnValue(false);
+    });
+
+    it('downgrades continuous mode to discrete when preference is set', () => {
+      prefersReducedMotionMock.mockReturnValue(true);
+      const e = new SonificationEngine({ mode: 'continuous' });
+      expect(e.mode).toBe('discrete');
+    });
+
+    it('leaves discrete mode alone when preference is set', () => {
+      prefersReducedMotionMock.mockReturnValue(true);
+      const e = new SonificationEngine({ mode: 'discrete' });
+      expect(e.mode).toBe('discrete');
+    });
+
+    it('keeps continuous mode when preference is not set', () => {
+      prefersReducedMotionMock.mockReturnValue(false);
+      const e = new SonificationEngine({ mode: 'continuous' });
+      expect(e.mode).toBe('continuous');
+    });
+
+    it('keeps continuous mode when respectReducedMotion is disabled', () => {
+      prefersReducedMotionMock.mockReturnValue(true);
+      const e = new SonificationEngine({
+        mode: 'continuous',
+        accessibility: { respectReducedMotion: false }
+      });
+      expect(e.mode).toBe('continuous');
+    });
+
+    it('setMode() always respects the caller even with reduced-motion', () => {
+      prefersReducedMotionMock.mockReturnValue(true);
+      const e = new SonificationEngine({ mode: 'continuous' });
+      expect(e.mode).toBe('discrete');
+      e.setMode('continuous');
+      expect(e.mode).toBe('continuous');
+    });
+  });
+
   describe('setMode()', () => {
     it('should set continuous mode', () => {
       engine.setMode('continuous');
